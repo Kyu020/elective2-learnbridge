@@ -53,7 +53,7 @@ class ResourcesService {
 
         const formData = new FormData();
         formData.append('title', uploadData.title);
-        formData.append('description', uploadData.program);
+        formData.append('program', uploadData.program);
         formData.append('file', uploadData.file);
 
         const response = await fetch(`${this.baseUrl}/upload/uploadfile`, {
@@ -64,7 +64,7 @@ class ResourcesService {
             body: formData,
         });
 
-        if (!response) {
+        if (!response.ok) {
             throw new Error("Failed to upload resource");
         }
 

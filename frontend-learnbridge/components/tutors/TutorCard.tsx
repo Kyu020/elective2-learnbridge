@@ -30,14 +30,15 @@ export const TutorCard = ({
       <CardContent className="p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
           {/* Tutor Profile Image/Initial */}
-          <div className="flex-shrink-0 flex items-start">
+          <div className="flex-shrink-0 flex items-start justify-center sm:justify-start">
             <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-lg sm:text-xl font-bold">
               {tutor.name.charAt(0).toUpperCase()}
             </div>
           </div>
           
           <div className="flex-1 min-w-0">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+            {/* Header with name and price */}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3">
               <div className="flex-1 min-w-0">
                 <h3 className="text-lg sm:text-xl font-semibold text-foreground line-clamp-1">
                   {tutor.name}
@@ -46,12 +47,29 @@ export const TutorCard = ({
                   {tutor.bio}
                 </p>
               </div>
-              <div className="text-right">
-                <div className="flex items-center gap-1 text-lg sm:text-xl font-bold text-green-600">
-                  <DollarSign className="h-4 w-4" />
-                  {tutor.hourlyRate}
+              <div className="flex items-center gap-2 justify-between sm:justify-end">
+                <div className="text-right">
+                  <div className="flex items-center gap-1 text-lg sm:text-xl font-bold text-green-600">
+                    <DollarSign className="h-4 w-4" />
+                    {tutor.hourlyRate}
+                  </div>
+                  <p className="text-xs sm:text-sm text-muted-foreground">per hour</p>
                 </div>
-                <p className="text-xs sm:text-sm text-muted-foreground">per hour</p>
+                {/* Favorite Button - Moved to header on right side */}
+                <Button
+                  onClick={() => onToggleFavorite(tutor.studentId)}
+                  variant="outline"
+                  disabled={isUpdatingFavorite}
+                  className={`p-2 sm:p-3 rounded-lg transition-all duration-200 flex-shrink-0 ${
+                    isFavorite
+                      ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100'
+                      : 'border-gray-300 text-gray-400 hover:text-red-500 hover:border-red-200'
+                  }`}
+                >
+                  <Heart 
+                    className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} 
+                  />
+                </Button>
               </div>
             </div>
             
@@ -100,7 +118,7 @@ export const TutorCard = ({
               </p>
             )}
 
-            {/* Action Buttons */}
+            {/* Action Buttons - Only Schedule and View Profile now */}
             <div className="flex flex-col sm:flex-row gap-2">
               {/* Schedule Button */}
               <Button
@@ -121,22 +139,6 @@ export const TutorCard = ({
                 <User className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden xs:inline">View Profile</span>
                 <span className="xs:hidden">Profile</span>
-              </Button>
-
-              {/* Favorite Button */}
-              <Button
-                onClick={() => onToggleFavorite(tutor.studentId)}
-                variant="outline"
-                disabled={isUpdatingFavorite}
-                className={`p-2 sm:p-3 rounded-lg transition-all duration-200 flex-shrink-0 ${
-                  isFavorite
-                    ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100'
-                    : 'border-gray-300 text-gray-400 hover:text-red-500 hover:border-red-200'
-                }`}
-              >
-                <Heart 
-                  className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} 
-                />
               </Button>
             </div>
           </div>

@@ -220,52 +220,79 @@ export default function TutorsPage() {
   return (
     <LayoutWrapper>
       {/* Header Section */}
-      <TutorHeader
-        userTutorStatus={userTutorStatus}
-        onToggleTutorMode={toggleTutorMode}
-        onEditProfile={handleOpenEditDialog}
-        onCreateProfile={handleOpenCreateDialog}
-      />
-
-      {/* Filters */}
-      <Filters
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        priceRange={priceRange}
-        onPriceRangeChange={setPriceRange}
-        onClearFilters={clearFilters}
-        resultCount={filteredTutors.length}
-        totalCount={tutors.length}
-        showMobileFilters={showMobileFilters}
-        onMobileFiltersToggle={() => setShowMobileFilters(!showMobileFilters)}
-      />
+      <div className="mb-8">
+        <TutorHeader
+          userTutorStatus={userTutorStatus}
+          onToggleTutorMode={toggleTutorMode}
+          onEditProfile={handleOpenEditDialog}
+          onCreateProfile={handleOpenCreateDialog}
+        />
+      </div>
 
       {/* Main Content Grid */}
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Tutors List */}
-        <div className="flex-1 space-y-4">
-          {filteredTutors.length > 0 ? (
-            filteredTutors.map((tutor) => (
-              <TutorCard
-                key={tutor.studentId}
-                tutor={tutor}
-                isFavorite={favorites.has(tutor.studentId)}
-                onToggleFavorite={handleToggleFavorite}
-                onScheduleSession={handleOpenScheduleDialog}
-                onViewProfile={handleViewProfile}
-                isUpdatingFavorite={updatingFavorite === tutor.studentId}
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Filters Sidebar */}
+        <div className="lg:w-80 flex-shrink-0">
+          <div className="sticky top-6">
+            {/* Handle mobile visibility in the parent */}
+            <div className={`
+              ${showMobileFilters ? 'block' : 'hidden'} 
+              lg:block
+            `}>
+              <Filters
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                priceRange={priceRange}
+                onPriceRangeChange={setPriceRange}
+                onClearFilters={clearFilters}
+                resultCount={filteredTutors.length}
+                totalCount={tutors.length}
+                showMobileFilters={showMobileFilters}
+                onMobileFiltersToggle={() => setShowMobileFilters(!showMobileFilters)}
               />
-            ))
-          ) : (
-            <EmptyState 
-              searchQuery={searchQuery}
-              onClearFilters={clearFilters}
-            />
-          )}
+            </div>
+          </div>
+        </div>
+
+        {/* Rest of your content remains the same */}
+        <div className="flex-1 min-w-0">
+          {/* Results Header */}
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-foreground">
+              {filteredTutors.length} {filteredTutors.length === 1 ? 'tutor' : 'tutors'} found
+            </h2>
+            {searchQuery && (
+              <p className="text-sm text-muted-foreground mt-1">
+                Search results for "{searchQuery}"
+              </p>
+            )}
+          </div>
+
+          {/* Tutors List */}
+          <div className="space-y-6">
+            {filteredTutors.length > 0 ? (
+              filteredTutors.map((tutor) => (
+                <TutorCard
+                  key={tutor.studentId}
+                  tutor={tutor}
+                  isFavorite={favorites.has(tutor.studentId)}
+                  onToggleFavorite={handleToggleFavorite}
+                  onScheduleSession={handleOpenScheduleDialog}
+                  onViewProfile={handleViewProfile}
+                  isUpdatingFavorite={updatingFavorite === tutor.studentId}
+                />
+              ))
+            ) : (
+              <EmptyState 
+                searchQuery={searchQuery}
+                onClearFilters={clearFilters}
+              />
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Create Tutor Profile Dialog */}
+      {/* Dialogs */}
       <TutorProfileDialog
         open={openCreateDialog}
         onOpenChange={setOpenCreateDialog}
@@ -273,10 +300,9 @@ export default function TutorsPage() {
         formData={createForm}
         onFormChange={setCreateForm}
         onSubmit={handleCreateTutor}
-        loading={false} // You might want to add loading state to the hook
+        loading={false}
       />
 
-      {/* Edit Tutor Profile Dialog */}
       <TutorProfileDialog
         open={openEditDialog}
         onOpenChange={setOpenEditDialog}
@@ -284,11 +310,10 @@ export default function TutorsPage() {
         formData={editForm}
         onFormChange={setEditForm}
         onSubmit={handleUpdateTutor}
-        loading={false} // You might want to add loading state to the hook
+        loading={false}
         isEdit={true}
       />
 
-      {/* Schedule Session Dialog */}
       <ScheduleDialog
         open={openScheduleDialog}
         onOpenChange={setOpenScheduleDialog}
@@ -296,7 +321,7 @@ export default function TutorsPage() {
         formData={scheduleForm}
         onFormChange={setScheduleForm}
         onSubmit={handleScheduleSession}
-        loading={false} // You might want to add loading state to the hook
+        loading={false}
         onCalculatePrice={(duration) => calculatePriceFromDuration(duration)}
         getMinDate={getMinDate}
         getMinTime={getMinTime}
