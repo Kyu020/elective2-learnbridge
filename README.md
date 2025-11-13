@@ -41,7 +41,7 @@ LearnBridge is a full-stack learning support platform where students can search,
 ### 🛠️ Setup Instructions
 ```bash
 # Clone repository
-git clone https://github.com/Kyu020/LearnBridge.git
+git clone https://github.com/Kyu020/elective2-learnbridge.git
 cd LearnBridge
 
 # Install dependencies
