@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { BookOpen, Clock, Users, Heart } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { Resource } from "@/interfaces/dashboard.interfaces"
+import { Resource } from "@/interfaces/resources.interfaces"
 
 interface ResourcesSectionProps {
     resources: Resource[];
@@ -55,7 +55,7 @@ export const ResourcesSection = ({ resources }: ResourcesSectionProps) => {
                         {resource.title}
                       </h3>
                       <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1 mt-1">
-                        {resource.program || "General"}
+                        {resource.course || "General"}
                       </p>
                       <div className="mt-2 flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
@@ -72,11 +72,6 @@ export const ResourcesSection = ({ resources }: ResourcesSectionProps) => {
                         </span>
                       </div>
                     </div>
-                    {resource.difficulty && (
-                      <Badge variant="secondary" className="text-xs self-start hidden sm:flex">
-                        {resource.difficulty}
-                      </Badge>
-                    )}
                   </CardContent>
                 </Card>
               ))

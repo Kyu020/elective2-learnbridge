@@ -1,17 +1,23 @@
+// components/dashboard/TutorsSection.tsx
+"use client"
+
+import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Users, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Tutor } from "@/interfaces/dashboard.interfaces";
+import { Tutor } from "@/interfaces/tutors.interfaces";
 
-
-interface TutorSectionProps {
+interface TutorsSectionProps {
     tutors: Tutor[];   
 }
 
-export const TutorsSection = ({ tutors }: TutorSectionProps) => {
+export const TutorsSection = ({ tutors }: TutorsSectionProps) => {
     const { toast } = useToast();
+    const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
     const recommendedTutors = tutors.slice(0, 3);
     
@@ -27,6 +33,10 @@ export const TutorsSection = ({ tutors }: TutorSectionProps) => {
             title: "Viewing tutor profile",
             description: `Opening ${tutorName}'s profile`
         });
+    };
+
+    const handleImageError = (studentId: string) => {
+        setImageErrors(prev => ({ ...prev, [studentId]: true }));
     };
 
     return (
@@ -55,46 +65,83 @@ export const TutorsSection = ({ tutors }: TutorSectionProps) => {
                 </CardContent>
               </Card>
             ) : (
-              recommendedTutors.map((tutor) => (
-                <Card key={tutor.studentId} className="transition-all hover:shadow-lg border hover:border-green-200">
-                  <CardContent className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4">
-                    <div className="relative flex-shrink-0">
-                      <div className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-sm sm:text-base">
-                        {tutor.name?.charAt(0)?.toUpperCase() || 'T'}
-                      </div>
-                      {tutor.favoriteCount > 0 && (
-                        <div className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center text-xs border-2 border-white">
-                          {tutor.favoriteCount}
+              recommendedTutors.map((tutor) => {
+                const hasProfilePicture = tutor.profilePicture?.url && !imageErrors[tutor.studentId];
+                
+                return (
+                  <Card key={tutor.studentId} className="transition-all hover:shadow-lg border hover:border-green-200">
+                    <CardContent className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4">
+                      <div className="relative flex-shrink-0">
+                        {/* Profile Picture */}
+                        <div className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 rounded-full overflow-hidden border-2 border-white shadow-md">
+                          {hasProfilePicture ? (
+                            <Image
+                              src={tutor.profilePicture.url}
+                              alt={tutor.name || "Tutor"}
+                              fill
+                              className="object-cover"
+                              sizes="(max-width: 56px) 56px, (max-width: 64px) 64px, 72px"
+                              onError={() => handleImageError(tutor.studentId)}
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-sm sm:text-base">
+                              {tutor.name?.charAt(0)?.toUpperCase() || 'T'}
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-foreground text-sm sm:text-base line-clamp-1">
-                        {tutor.name || "Unknown Tutor"}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1 mt-1">
-                        {tutor.subjects?.slice(0, 2).join(", ") || "No subjects"}
-                      </p>
-                      <div className="mt-2 flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                          {tutor.rating || "N/A"} ({tutor.reviews || 0})
-                        </span>
-                        <span className="font-medium text-foreground">₱{tutor.hourlyRate || 0}/hr</span>
+                        
+                        {/* Favorite Count Badge */}
+                        {tutor.favoriteCount > 0 && (
+                          <div className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center text-xs border-2 border-white shadow-sm">
+                            {tutor.favoriteCount}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                    <Link href={`/tutors/${tutor.studentId}`} className="flex-shrink-0">
-                      <Button 
-                        size="sm" 
-                        className="text-xs sm:text-sm whitespace-nowrap"
-                        onClick={() => handleViewTutorClick(tutor.name || "Tutor")}
-                      >
-                        View
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))
+                      
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-foreground text-sm sm:text-base line-clamp-1">
+                          {tutor.name || "Unknown Tutor"}
+                        </h3>
+                        
+                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1 mt-1">
+                          {tutor.course?.slice(0, 2).join(", ") || "No courses"}
+                        </p>
+                        
+                        <div className="mt-2 flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                            {tutor.ratingAverage?.toFixed(1) || "0.0"} ({tutor.ratingCount || 0})
+                          </span>
+                          
+                          <span className="font-medium text-foreground">
+                            ₱{tutor.hourlyRate?.toLocaleString() || 0}/hr
+                          </span>
+                          
+                          {/* Teaching Level Badge */}
+                          {tutor.teachingLevel && (
+                            <Badge 
+                              variant="outline" 
+                              className="text-xs px-1.5 py-0.5 hidden sm:inline-flex"
+                            >
+                              {tutor.teachingLevel}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <Link href={`/tutors/${tutor.studentId}`} className="flex-shrink-0">
+                        <Button 
+                          size="sm" 
+                          className="text-xs sm:text-sm whitespace-nowrap"
+                          onClick={() => handleViewTutorClick(tutor.name || "Tutor")}
+                        >
+                          View
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                );
+              })
             )}
           </div>
         </div>
