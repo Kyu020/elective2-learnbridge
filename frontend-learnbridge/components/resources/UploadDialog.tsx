@@ -15,7 +15,7 @@ interface UploadDialogProps {
 export const UploadDialog = ({ onResourceUploaded, trigger }: UploadDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState('');
-  const [program, setProgram] = useState('');
+  const [course, setCourse] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const { uploadResource, uploading } = useResourceUpload();
   const { toast } = useToast();
@@ -30,7 +30,7 @@ export const UploadDialog = ({ onResourceUploaded, trigger }: UploadDialogProps)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!title || !program || !file) {
+    if (!title || !course || !file) {
       toast({
         title: "Missing information",
         description: "Please complete all fields.",
@@ -39,13 +39,13 @@ export const UploadDialog = ({ onResourceUploaded, trigger }: UploadDialogProps)
       return;
     }
 
-    const resource = await uploadResource({ title, program, file });
+    const resource = await uploadResource({ title, course, file });
     
     if (resource) {
       onResourceUploaded(resource);
       setIsOpen(false);
       setTitle('');
-      setProgram('');
+      setCourse('');
       setFile(null);
     }
   };
@@ -80,12 +80,12 @@ export const UploadDialog = ({ onResourceUploaded, trigger }: UploadDialogProps)
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="program" className="text-sm sm:text-base">Program/Course</Label>
+            <Label htmlFor="course" className="text-sm sm:text-base">Course</Label>
             <Input
-              id="program"
-              placeholder="Enter related program/course"
-              value={program}
-              onChange={(e) => setProgram(e.target.value)}
+              id="course"
+              placeholder="Integrative Programming and Technologies"
+              value={course}
+              onChange={(e) => setCourse(e.target.value)}
               required
               className="text-sm sm:text-base"
             />

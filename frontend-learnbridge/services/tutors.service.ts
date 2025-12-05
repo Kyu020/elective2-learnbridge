@@ -44,7 +44,7 @@ class TutorsService {
       studentId: tutor.studentId || tutor._id || "",
       name: tutor.name || tutor.username || "Unknown Tutor",
       bio: tutor.bio || "No bio available",
-      subjects: Array.isArray(tutor.subjects) ? tutor.subjects : [],
+      course: Array.isArray(tutor.subjects) ? tutor.subjects : [],
       hourlyRate: tutor.hourlyRate || 0,
       availability: Array.isArray(tutor.availability) ? tutor.availability : [],
       credentials: tutor.credentials || "",
@@ -76,7 +76,7 @@ class TutorsService {
     // FIX: Properly process the form data
     const formattedData = {
       bio: formData.bio,
-      subjects: formData.subjects.split(",").map((s: string) => s.trim()).filter((s: string) => s),
+      subjects: formData.course.split(",").map((s: string) => s.trim()).filter((s: string) => s),
       availability: formData.availability.split(",").map((a: string) => a.trim()).filter((a: string) => a),
       hourlyRate: parseInt(formData.hourlyRate) || 0,
       credentials: formData.credentials,
@@ -92,7 +92,7 @@ class TutorsService {
     // FIX: Properly process the form data
     const formattedData = {
       bio: formData.bio,
-      subjects: formData.subjects.split(",").map((s: string) => s.trim()).filter((s: string) => s),
+      subjects: formData.course.split(",").map((s: string) => s.trim()).filter((s: string) => s),
       availability: formData.availability.split(",").map((a: string) => a.trim()).filter((a: string) => a),
       hourlyRate: parseInt(formData.hourlyRate) || 0,
       credentials: formData.credentials,

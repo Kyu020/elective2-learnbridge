@@ -73,10 +73,10 @@ export const TutorCard = ({
               </div>
             </div>
             
-            {/* Subjects */}
+            {/* Courses */}
             <div className="flex flex-wrap gap-2 my-3">
-              {tutor.subjects.length > 0 ? (
-                tutor.subjects.slice(0, 3).map((subject) => (
+              {tutor.course.length > 0 ? (
+                tutor.course.slice(0, 3).map((subject) => (
                   <Badge key={subject} variant="outline" className="text-xs">
                     {subject}
                   </Badge>
@@ -84,9 +84,9 @@ export const TutorCard = ({
               ) : (
                 <span className="text-sm text-muted-foreground">No subjects listed</span>
               )}
-              {tutor.subjects.length > 3 && (
+              {tutor.course.length > 3 && (
                 <Badge variant="secondary" className="text-xs">
-                  +{tutor.subjects.length - 3} more
+                  +{tutor.course.length - 3} more
                 </Badge>
               )}
             </div>

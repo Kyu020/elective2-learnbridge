@@ -18,6 +18,13 @@ export const TutorHeader = ({
   onEditProfile,
   onCreateProfile
 }: TutorHeaderProps) => {
+  
+  const handleToggle = (checked: boolean) => {
+    console.log('Toggling tutor mode to:', checked);
+    console.log('Current userTutorStatus:', userTutorStatus);
+    onToggleTutorMode(checked);
+  };
+
   return (
     <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div className="flex-1 min-w-0">
@@ -36,7 +43,7 @@ export const TutorHeader = ({
               <Label className="text-sm text-foreground whitespace-nowrap">Available as Tutor</Label>
               <Switch 
                 checked={userTutorStatus.isTutor} 
-                onCheckedChange={onToggleTutorMode}
+                onCheckedChange={handleToggle}
               />
             </div>
             <Button variant="outline" size="sm" onClick={onEditProfile} className="whitespace-nowrap">

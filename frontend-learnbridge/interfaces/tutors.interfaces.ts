@@ -2,7 +2,7 @@ export interface Tutor {
   studentId: string
   name: string
   bio: string
-  subjects: string[]
+  course: string[]
   hourlyRate: number
   availability: string[]
   credentials?: string
@@ -13,7 +13,7 @@ export interface Tutor {
 
 export interface TutorFormData {
     bio: string
-    subjects: string
+    course: string
     hourlyRate: string
     availability: string
     credentials?: string

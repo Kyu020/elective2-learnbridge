@@ -1,3 +1,4 @@
+// models/Tutor.ts
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface ITutor extends Document {
@@ -12,6 +13,18 @@ export interface ITutor extends Document {
   ratingAverage: number;
   ratingCount: number;
   createdAt?: Date;
+  
+  course?: string[];
+  profilePicture?: any;
+  teachingLevel?: string;
+  teachingStyle?: string;
+  modeOfTeaching?: string;
+  credibilityScore?: number;
+  sessionsCompleted?: number;
+  sessionsCancelled?: number;
+  lastActiveAt?: Date;
+  responseTime?: number;
+  availabilitySlots?: any[];
 }
 
 const TutorSchema: Schema = new Schema(
@@ -27,7 +40,11 @@ const TutorSchema: Schema = new Schema(
     ratingAverage: { type: Number, default: 0 },
     ratingCount: { type: Number, default: 0 },
   },
-  { timestamps: true, versionKey: false }
+  { 
+    timestamps: true, 
+    versionKey: false,
+    strict: false
+  }
 );
 
 export default mongoose.model<ITutor>("Tutor", TutorSchema);

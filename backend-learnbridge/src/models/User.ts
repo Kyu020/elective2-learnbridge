@@ -1,3 +1,4 @@
+// models/User.ts
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IUser extends Document {
@@ -9,6 +10,18 @@ export interface IUser extends Document {
     isTutor: boolean;
     password: string;
     createdAt: Date;
+    
+    profilePicture?: any;
+    learningInterests?: string[];
+    learningLevel?: string;
+    preferredLearningStyle?: string;
+    preferredMode?: string;
+    budgetRange?: {
+        min: number;
+        max: number;
+    };
+    earnedBadges?: any[];
+    availability?: string[];
 }
 
 const UserSchema: Schema = new Schema<IUser>({
@@ -20,7 +33,8 @@ const UserSchema: Schema = new Schema<IUser>({
     isTutor: { type: Boolean, default: false },
     password: { type: String, required: true },
     createdAt: { type: Date, default: Date.now }
-}, { versionKey: false } );
+    
+}, { versionKey: false, strict: false });
 
 const User = mongoose.model<IUser>("User", UserSchema);
 export default User;

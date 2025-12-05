@@ -20,6 +20,12 @@ export const ResourceCard = ({
 }: ResourceCardProps) => {
   const { toast } = useToast();
   const favoriteCount = resource.favoriteCount || 0;
+  
+  // Safe course value with fallback
+  const course = resource.course || 'Uncategorized';
+  
+  // Safe uploader display name
+  const uploaderDisplayName = resource.uploaderName || resource.uploader || 'Unknown';
 
   const handleViewFile = () => {
     toast({
@@ -28,12 +34,7 @@ export const ResourceCard = ({
     });
   };
 
-  const truncateProgram = (program: string, maxLength: number = 20) => {
-    if (program.length <= maxLength) return program;
-    return program.substring(0, maxLength) + '...';
-  };
-
-  return (
+ return (
     <Card className="hover:shadow-md transition-all duration-300 flex flex-col h-full border-2 hover:border-blue-200 min-w-0">
       <CardContent className="p-4 sm:p-6 flex flex-col flex-grow min-w-0">
         <div className="flex-grow min-w-0">
@@ -66,30 +67,29 @@ export const ResourceCard = ({
             </div>
           </div>
           
-        <div className="mb-3 flex flex-wrap gap-1">
+          {/* Fixed course badge section */}
+          <div className="mb-3 flex flex-wrap gap-1">
             <Badge 
-                variant="secondary" 
-                className="text-xs max-w-full truncate flex-shrink-0"
-                title={resource.program}
+              variant="secondary" 
+              className="text-xs max-w-full truncate flex-shrink-0"
+              title={course}
             >
-                {resource.program.length > 50 ? 
-                resource.program.substring(0, 50) + '...' : 
-                resource.program
-                }
+              {course.length > 50 ? 
+                course.substring(0, 50) + '...' : 
+                course
+              }
             </Badge>
-        </div>
+          </div>
           
-          
-          {(resource.uploader || resource.uploaderName) && (
-            <div className="flex items-center gap-2 mb-3 min-w-0">
-              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
-                {(resource.uploaderName || resource.uploader || 'U').charAt(0).toUpperCase()}
-              </div>
-              <span className="text-xs sm:text-sm text-muted-foreground truncate flex-1 min-w-0">
-                Uploaded by {resource.uploaderName || resource.uploader || 'Unknown'}
-              </span>
+          {/* Fixed uploader section */}
+          <div className="flex items-center gap-2 mb-3 min-w-0">
+            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
+              {uploaderDisplayName.charAt(0).toUpperCase()}
             </div>
-          )}
+            <span className="text-xs sm:text-sm text-muted-foreground truncate flex-1 min-w-0">
+              Uploaded by {uploaderDisplayName}
+            </span>
+          </div>
           
           <p className="text-xs text-muted-foreground mb-4">
             Added {new Date(resource.createdAt).toLocaleDateString()}

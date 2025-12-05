@@ -1,7 +1,7 @@
 export interface Resource {
   _id: string;
   title: string;
-  program: string;
+  course: string;
   googleDriveLink: string;
   uploader?: string;
   uploaderName?: string;
@@ -11,7 +11,7 @@ export interface Resource {
 
 export interface UploadResourceData {
     title: string;
-    program: string;
+    course: string;
     file: File;
 }
 

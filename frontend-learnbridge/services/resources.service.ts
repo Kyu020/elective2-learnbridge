@@ -53,7 +53,7 @@ class ResourcesService {
 
         const formData = new FormData();
         formData.append('title', uploadData.title);
-        formData.append('program', uploadData.program);
+        formData.append('course', uploadData.course);
         formData.append('file', uploadData.file);
 
         const response = await fetch(`${this.baseUrl}/upload/uploadfile`, {

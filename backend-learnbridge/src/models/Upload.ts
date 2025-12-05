@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IUpload extends Document{
     title: string;
-    program: string;
+    course: string;
     uploader: string;
     favoriteCount: number;
     googleDriveFileId: string;
@@ -12,7 +12,7 @@ export interface IUpload extends Document{
 
 export const UploadSchema: Schema = new Schema({
     title: { type: String, required: true },
-    program: { type: String, required: true },
+    course: { type: String, required: true },
     uploader: { type: String, required: true },
     favoriteCount: { type: Number, default: 0 },
     googleDriveFileId: { type: String, required: true },
