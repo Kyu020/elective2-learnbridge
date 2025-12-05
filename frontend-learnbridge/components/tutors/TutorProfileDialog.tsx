@@ -105,7 +105,7 @@ export const TutorProfileDialog = ({
   }, []);
 
   const handleSubjectChange = (subject: string, checked: boolean) => {
-    const currentSubjects = formData.course;
+    const currentSubjects = formData.course || [];
     let newSubjects: string[];
     
     if (checked) {
@@ -122,7 +122,8 @@ export const TutorProfileDialog = ({
     onSubmit();
   };
 
-  const selectedSubjects = formData.course;
+  // Use either course or subjects array (System A uses course, System B uses subjects)
+  const selectedSubjects = formData.course || [];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

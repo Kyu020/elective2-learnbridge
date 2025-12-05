@@ -1,3 +1,4 @@
+// services/bookings.service.ts
 import { Booking, BookingsData } from '@/interfaces/bookings.interfaces';
 
 class BookingsService {
@@ -29,43 +30,75 @@ class BookingsService {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
     }
 
     return response.json();
   }
 
   async fetchBookings(): Promise<BookingsData> {
-    const token = this.getToken();
-    
     let sentBookings: Booking[] = [];
     let receivedBookings: Booking[] = [];
     let isTutor = false;
 
     // Fetch sent bookings (student requests)
     try {
-      const sentRes = await this.fetchWithAuth<{ body: Booking[] }>('/request/getstudentrequests');
-      sentBookings = sentRes.body || [];
+      const sentRes = await this.fetchWithAuth<{ body?: Booking[]; bookings?: Booking[]; requests?: Booking[] }>(
+        `${this.baseUrl}/request/getstudentrequests`
+      );
+      
+      // Handle different response structures
+      if (Array.isArray(sentRes.body)) {
+        sentBookings = sentRes.body;
+      } else if (Array.isArray(sentRes.bookings)) {
+        sentBookings = sentRes.bookings;
+      } else if (Array.isArray(sentRes.requests)) {
+        sentBookings = sentRes.requests;
+      } else if (Array.isArray(sentRes)) {
+        sentBookings = sentRes;
+      }
     } catch (error: any) {
-      if (!error.message.includes('404')) {
+      if (error.message.includes('404') || error.message.includes('No bookings found')) {
+        // No sent bookings found - this is fine
+        console.log('No sent bookings found');
+      } else {
+        console.error('Failed to fetch sent bookings:', error);
         throw new Error(`Failed to fetch sent bookings: ${error.message}`);
       }
-      // 404 means no sent bookings - this is fine
     }
 
     // Try to fetch received bookings (will fail if user is not a tutor)
     try {
-      const receivedRes = await this.fetchWithAuth<{ body: Booking[] }>('/request/getrequests');
-      receivedBookings = receivedRes.body || [];
+      const receivedRes = await this.fetchWithAuth<{ body?: Booking[]; bookings?: Booking[]; requests?: Booking[] }>(
+        `${this.baseUrl}/request/getrequests`
+      );
+      
+      // Handle different response structures
+      if (Array.isArray(receivedRes.body)) {
+        receivedBookings = receivedRes.body;
+      } else if (Array.isArray(receivedRes.bookings)) {
+        receivedBookings = receivedRes.bookings;
+      } else if (Array.isArray(receivedRes.requests)) {
+        receivedBookings = receivedRes.requests;
+      } else if (Array.isArray(receivedRes)) {
+        receivedBookings = receivedRes;
+      }
+      
       isTutor = true;
     } catch (error: any) {
-      if (error.message.includes('403')) {
+      if (error.message.includes('403') || error.message.includes('Unauthorized') || error.message.includes('Not a tutor')) {
         // User is not a tutor - this is expected
         isTutor = false;
-      } else if (!error.message.includes('404')) {
+        console.log('User is not a tutor, cannot fetch received bookings');
+      } else if (error.message.includes('404') || error.message.includes('No bookings found')) {
+        // No received bookings found - this is fine
+        isTutor = true; // User is a tutor but has no bookings
+        console.log('No received bookings found');
+      } else {
+        console.error('Failed to fetch received bookings:', error);
         throw new Error(`Failed to fetch received bookings: ${error.message}`);
       }
-      // 404 means no received bookings - this is fine
     }
 
     return {
@@ -76,12 +109,16 @@ class BookingsService {
   }
 
   async updateBookingStatus(id: string, status: Booking["status"], tutorComment?: string): Promise<Booking> {
-    const data = await this.fetchWithAuth<{ body: Booking }>(`/request/updaterequeststatus/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify({ status, tutorComment }),
-    });
+    const data = await this.fetchWithAuth<{ body?: Booking; booking?: Booking; request?: Booking }>(
+      `${this.baseUrl}/request/updaterequeststatus/${id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify({ status, tutorComment }),
+      }
+    );
     
-    return data.body;
+    // Handle different response structures
+    return data.body || data.booking || data.request || data as Booking;
   }
 }
 

@@ -1,149 +1,229 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Heart, ExternalLink, Calendar, User, Clock, DollarSign } from "lucide-react";
-import { Tutor } from '@/interfaces/tutors.interfaces';
-import { useToast } from '@/hooks/use-toast';
+// components/tutors/TutorCard.tsx
+"use client"
+
+import { useState } from "react"
+import Image from "next/image"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Star, Clock, DollarSign, MapPin, Monitor, Users } from "lucide-react"
 
 interface TutorCardProps {
-  tutor: Tutor;
-  isFavorite: boolean;
-  onToggleFavorite: (tutorId: string) => void;
-  onScheduleSession: (tutor: Tutor) => void;
-  onViewProfile: (tutor: Tutor) => void;
-  isUpdatingFavorite?: boolean;
+  tutor: any
+  isFavorite: boolean
+  onToggleFavorite: (tutorId: string) => void
+  onScheduleSession: (tutor: any) => void
+  onViewProfile: (tutor: any) => void
+  isUpdatingFavorite: boolean
 }
 
-export const TutorCard = ({ 
-  tutor, 
-  isFavorite, 
-  onToggleFavorite, 
+export const TutorCard = ({
+  tutor,
+  isFavorite,
+  onToggleFavorite,
   onScheduleSession,
   onViewProfile,
-  isUpdatingFavorite = false 
+  isUpdatingFavorite
 }: TutorCardProps) => {
-  const { toast } = useToast();
-  const favoriteCount = tutor.favoriteCount || 0;
+  const [imageError, setImageError] = useState(false)
+
+  // Handle image errors
+  const handleImageError = () => {
+    setImageError(true)
+  }
+
+  // Use course field (not subjects)
+  const courses = tutor.course || []
+  
+  // Format rating
+  const rating = tutor.ratingAverage || 0
+  const ratingCount = tutor.ratingCount || 0
+  
+  // Format availability
+  const availability = Array.isArray(tutor.availability) 
+    ? tutor.availability.join(", ")
+    : tutor.availability || "Not specified"
+  
+  // Get teaching level badge color
+  const getTeachingLevelColor = (level: string) => {
+    switch (level?.toLowerCase()) {
+      case "beginner": return "bg-green-100 text-green-800"
+      case "intermediate": return "bg-yellow-100 text-yellow-800"
+      case "advanced": return "bg-red-100 text-red-800"
+      default: return "bg-gray-100 text-gray-800"
+    }
+  }
+
+  // Get teaching style icon
+  const getTeachingStyleIcon = (style: string) => {
+    switch (style?.toLowerCase()) {
+      case "structured": return "📚"
+      case "interactive": return "🤝"
+      case "conversational": return "💬"
+      case "project-based": return "📁"
+      case "problem-solving": return "🔍"
+      default: return "🎓"
+    }
+  }
 
   return (
-    <Card className="transition-all hover:shadow-lg border-2 hover:border-blue-200">
-      <CardContent className="p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-          {/* Tutor Profile Image/Initial */}
-          <div className="flex-shrink-0 flex items-start justify-center sm:justify-start">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-lg sm:text-xl font-bold">
-              {tutor.name.charAt(0).toUpperCase()}
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+      <CardContent className="p-6">
+        <div className="flex flex-col sm:flex-row gap-6">
+          {/* Tutor Image */}
+          <div className="flex-shrink-0">
+            <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg">
+              {tutor.profilePicture?.url && !imageError ? (
+                <Image
+                  src={tutor.profilePicture.url}
+                  alt={tutor.name}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 96px) 96px, 96px"
+                  onError={handleImageError}
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+                  <Users className="w-12 h-12 text-gray-400" />
+                </div>
+              )}
             </div>
           </div>
-          
+
+          {/* Tutor Info */}
           <div className="flex-1 min-w-0">
-            {/* Header with name and price */}
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3">
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg sm:text-xl font-semibold text-foreground line-clamp-1">
-                  {tutor.name}
-                </h3>
-                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                  {tutor.bio}
-                </p>
-              </div>
-              <div className="flex items-center gap-2 justify-between sm:justify-end">
-                <div className="text-right">
-                  <div className="flex items-center gap-1 text-lg sm:text-xl font-bold text-green-600">
-                    <DollarSign className="h-4 w-4" />
-                    {tutor.hourlyRate}
-                  </div>
-                  <p className="text-xs sm:text-sm text-muted-foreground">per hour</p>
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-start justify-between">
+                  <h3 className="text-xl font-semibold text-gray-900 truncate">
+                    {tutor.name}
+                  </h3>
+                  <button
+                    onClick={() => onToggleFavorite(tutor.studentId)}
+                    disabled={isUpdatingFavorite}
+                    className="ml-2 flex-shrink-0"
+                  >
+                    <Star
+                      className={`w-5 h-5 ${
+                        isFavorite 
+                          ? "fill-yellow-400 text-yellow-400" 
+                          : "text-gray-300 hover:text-yellow-400"
+                      } transition-colors`}
+                    />
+                  </button>
                 </div>
-                {/* Favorite Button - Moved to header on right side */}
-                <Button
-                  onClick={() => onToggleFavorite(tutor.studentId)}
-                  variant="outline"
-                  disabled={isUpdatingFavorite}
-                  className={`p-2 sm:p-3 rounded-lg transition-all duration-200 flex-shrink-0 ${
-                    isFavorite
-                      ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100'
-                      : 'border-gray-300 text-gray-400 hover:text-red-500 hover:border-red-200'
-                  }`}
-                >
-                  <Heart 
-                    className={`h-4 w-4 sm:h-5 sm:w-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} 
-                  />
-                </Button>
+                
+                {/* Rating */}
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="flex items-center">
+                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <span className="ml-1 font-semibold">{rating.toFixed(1)}</span>
+                  </div>
+                  <span className="text-gray-500 text-sm">
+                    ({ratingCount} {ratingCount === 1 ? 'review' : 'reviews'})
+                  </span>
+                </div>
+
+                {/* Teaching Level Badge */}
+                {tutor.teachingLevel && (
+                  <Badge className={`mt-2 ${getTeachingLevelColor(tutor.teachingLevel)}`}>
+                    {tutor.teachingLevel.charAt(0).toUpperCase() + tutor.teachingLevel.slice(1)}
+                  </Badge>
+                )}
+              </div>
+
+              {/* Hourly Rate */}
+              <div className="flex-shrink-0">
+                <div className="text-2xl font-bold text-gray-900">
+                  ₱{tutor.hourlyRate}
+                  <span className="text-sm font-normal text-gray-500">/hr</span>
+                </div>
               </div>
             </div>
-            
+
+            {/* Bio */}
+            <p className="text-gray-600 mt-4 line-clamp-2">
+              {tutor.bio}
+            </p>
+
             {/* Courses */}
-            <div className="flex flex-wrap gap-2 my-3">
-              {tutor.course.length > 0 ? (
-                tutor.course.slice(0, 3).map((subject) => (
-                  <Badge key={subject} variant="outline" className="text-xs">
-                    {subject}
-                  </Badge>
-                ))
-              ) : (
-                <span className="text-sm text-muted-foreground">No subjects listed</span>
-              )}
-              {tutor.course.length > 3 && (
-                <Badge variant="secondary" className="text-xs">
-                  +{tutor.course.length - 3} more
-                </Badge>
-              )}
-            </div>
-            
-            {/* Availability & Favorite Count */}
-            <div className="flex flex-wrap gap-3 text-xs sm:text-sm text-muted-foreground mb-4">
-              {tutor.availability.length > 0 ? (
-                <span className="flex items-center gap-1">
-                  <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
-                  Available
-                </span>
-              ) : (
-                <span className="text-sm text-muted-foreground">No availability set</span>
-              )}
-              
-              {/* Favorite Count */}
-              {favoriteCount > 0 && (
-                <span className="flex items-center gap-1 text-red-600">
-                  <Heart className="h-3 w-3 sm:h-4 sm:w-4 fill-red-500 text-red-500" />
-                  {favoriteCount} favorite{favoriteCount !== 1 ? 's' : ''}
-                </span>
-              )}
-            </div>
-            
-            {/* Credentials */}
-            {tutor.credentials && (
-              <p className="text-sm italic text-foreground mb-4 line-clamp-2">
-                {tutor.credentials}
-              </p>
+            {courses.length > 0 && (
+              <div className="mt-4">
+                <div className="flex flex-wrap gap-2">
+                  {courses.slice(0, 3).map((course: string, index: number) => (
+                    <Badge 
+                      key={index} 
+                      variant="secondary"
+                      className="text-xs"
+                    >
+                      {course}
+                    </Badge>
+                  ))}
+                  {courses.length > 3 && (
+                    <Badge variant="outline" className="text-xs">
+                      +{courses.length - 3} more
+                    </Badge>
+                  )}
+                </div>
+              </div>
             )}
 
-            {/* Action Buttons - Only Schedule and View Profile now */}
-            <div className="flex flex-col sm:flex-row gap-2">
-              {/* Schedule Button */}
-              <Button
-                onClick={() => onScheduleSession(tutor)}
-                className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-2 px-3 sm:px-4 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 text-sm sm:text-base"
-              >
-                <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden xs:inline">Apply for Schedule</span>
-                <span className="xs:hidden">Schedule</span>
-              </Button>
-
-              {/* View Profile Button */}
-              <Button
-                onClick={() => onViewProfile(tutor)}
-                variant="outline"
-                className="flex-1 border-2 border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 py-2 px-3 sm:px-4 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 text-sm sm:text-base"
-              >
-                <User className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden xs:inline">View Profile</span>
-                <span className="xs:hidden">Profile</span>
-              </Button>
+            {/* Teaching Info */}
+            <div className="flex flex-wrap items-center gap-4 mt-4 text-sm text-gray-500">
+              {/* Teaching Style */}
+              {tutor.teachingStyle && (
+                <div className="flex items-center gap-1">
+                  <span>{getTeachingStyleIcon(tutor.teachingStyle)}</span>
+                  <span>{tutor.teachingStyle}</span>
+                </div>
+              )}
+              
+              {/* Mode of Teaching */}
+              {tutor.modeOfTeaching && (
+                <div className="flex items-center gap-1">
+                  {tutor.modeOfTeaching === "online" ? (
+                    <Monitor className="w-4 h-4" />
+                  ) : tutor.modeOfTeaching === "in-person" ? (
+                    <MapPin className="w-4 h-4" />
+                  ) : (
+                    <Users className="w-4 h-4" />
+                  )}
+                  <span>
+                    {tutor.modeOfTeaching === "either" 
+                      ? "Online/In-person" 
+                      : tutor.modeOfTeaching}
+                  </span>
+                </div>
+              )}
+              
+              {/* Availability */}
+              <div className="flex items-center gap-1">
+                <Clock className="w-4 w-4" />
+                <span className="truncate max-w-[200px]">{availability}</span>
+              </div>
             </div>
           </div>
         </div>
       </CardContent>
+
+      {/* Card Footer with Actions */}
+      <CardFooter className="bg-gray-50 px-6 py-4 border-t">
+        <div className="flex flex-col sm:flex-row gap-3 w-full">
+          <Button
+            variant="outline"
+            onClick={() => onViewProfile(tutor)}
+            className="flex-1"
+          >
+            View Profile
+          </Button>
+          <Button
+            onClick={() => onScheduleSession(tutor)}
+            className="flex-1"
+          >
+            Schedule Session
+          </Button>
+        </div>
+      </CardFooter>
     </Card>
   );
-};
+}

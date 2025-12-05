@@ -5,8 +5,6 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { LayoutDashboard, BookOpen, Users, Calendar, TrendingUp, Settings, Heart, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useEffect, useState } from "react"
-import api from "@/lib/axios"
 import { useCurrentUser } from "@/hooks/useFetchData"
 
 const navigation = [
@@ -16,7 +14,6 @@ const navigation = [
   { name: "My Bookings", href: "/bookings", icon: Calendar },
   { name: "Favorites", href: "/favorites", icon: Heart },
   { name: "Progress", href: "/progress", icon: TrendingUp },
-  { name: "Settings", href: "/settings", icon: Settings },
 ]
 
 interface SidebarProps {

@@ -36,23 +36,33 @@ class TutorsService {
     return response.json();
   }
 
-  async fetchTutors(): Promise<Tutor[]> {
-    const data = await this.fetchWithAuth<{ tutors: any[] }>(`${this.baseUrl}/tutor/getalltutor`);
-    
-    // Format tutors to ensure they have required properties
-    return data.tutors?.map((tutor: any) => ({
-      studentId: tutor.studentId || tutor._id || "",
-      name: tutor.name || tutor.username || "Unknown Tutor",
-      bio: tutor.bio || "No bio available",
-      course: Array.isArray(tutor.subjects) ? tutor.subjects : [],
-      hourlyRate: tutor.hourlyRate || 0,
-      availability: Array.isArray(tutor.availability) ? tutor.availability : [],
-      credentials: tutor.credentials || "",
-      favoriteCount: tutor.favoriteCount || 0,
-      createdAt: tutor.createdAt,
-      updatedAt: tutor.updatedAt
-    })) || [];
-  }
+async fetchTutors(): Promise<Tutor[]> {
+  const data = await this.fetchWithAuth<{ tutors: any[] }>(`${this.baseUrl}/tutor/getalltutor`);
+  
+  // Format tutors to ensure they have required properties
+  return data.tutors?.map((tutor: any) => ({
+    studentId: tutor.studentId || tutor._id || "",
+    name: tutor.name || tutor.username || "Unknown Tutor",
+    bio: tutor.bio || "No bio available",
+    course: Array.isArray(tutor.course) ? tutor.course : [],
+    hourlyRate: tutor.hourlyRate || 0,
+    availability: Array.isArray(tutor.availability) ? tutor.availability : [],
+    credentials: tutor.credentials || "",
+    favoriteCount: tutor.favoriteCount || 0,
+    createdAt: tutor.createdAt,
+    updatedAt: tutor.updatedAt,
+    teachingLevel: tutor.teachingLevel,
+    teachingStyle: tutor.teachingStyle,
+    modeOfTeaching: tutor.modeOfTeaching,
+    profilePicture: tutor.profilePicture,
+    ratingAverage: tutor.ratingAverage,
+    ratingCount: tutor.ratingCount,
+    credibilityScore: tutor.credibilityScore,
+    sessionsCompleted: tutor.sessionsCompleted,
+    sessionsCancelled: tutor.sessionsCancelled,
+    availabilitySlots: tutor.availabilitySlots
+  })) || [];
+}
 
   async fetchFavorites(): Promise<string[]> {
     const data = await this.fetchWithAuth<{ favorites: any[] }>(`${this.baseUrl}/favorites/getfave`);
@@ -73,14 +83,20 @@ class TutorsService {
   }
 
   async createTutorProfile(formData: TutorFormData): Promise<{ tutor: Tutor }> {
-    // FIX: Properly process the form data
+    // FIX: course is now an array, not a string
     const formattedData = {
       bio: formData.bio,
-      subjects: formData.course.split(",").map((s: string) => s.trim()).filter((s: string) => s),
+      course: Array.isArray(formData.course) ? formData.course : [],
       availability: formData.availability.split(",").map((a: string) => a.trim()).filter((a: string) => a),
       hourlyRate: parseInt(formData.hourlyRate) || 0,
-      credentials: formData.credentials,
+      credentials: formData.credentials || "",
+      // Optional fields
+      teachingLevel: formData.teachingLevel || "beginner",
+      teachingStyle: formData.teachingStyle || "conversational",
+      modeOfTeaching: formData.modeOfTeaching || "either"
     };
+
+    console.log('Sending tutor data:', formattedData);
 
     return this.fetchWithAuth<{ tutor: Tutor }>(`${this.baseUrl}/tutor/createtutor`, {
       method: 'POST',
@@ -89,14 +105,20 @@ class TutorsService {
   }
 
   async updateTutorProfile(formData: TutorFormData): Promise<{ updatedProfile: Tutor }> {
-    // FIX: Properly process the form data
+    // FIX: course is now an array, not a string
     const formattedData = {
       bio: formData.bio,
-      subjects: formData.course.split(",").map((s: string) => s.trim()).filter((s: string) => s),
+      course: Array.isArray(formData.course) ? formData.course : [],
       availability: formData.availability.split(",").map((a: string) => a.trim()).filter((a: string) => a),
       hourlyRate: parseInt(formData.hourlyRate) || 0,
-      credentials: formData.credentials,
+      credentials: formData.credentials || "",
+      // Optional fields
+      teachingLevel: formData.teachingLevel,
+      teachingStyle: formData.teachingStyle,
+      modeOfTeaching: formData.modeOfTeaching
     };
+
+    console.log('Updating tutor data:', formattedData);
 
     return this.fetchWithAuth<{ updatedProfile: Tutor }>(`${this.baseUrl}/tutor/updatetutor`, {
       method: 'PUT',
@@ -132,6 +154,14 @@ class TutorsService {
       method: 'POST',
       body: JSON.stringify({ tutorId }),
     });
+  }
+
+  async toggleFavorite(tutorId: string, isCurrentlyFavorite: boolean): Promise<void> {
+    if (isCurrentlyFavorite) {
+      await this.removeFavorite(tutorId);
+    } else {
+      await this.addFavorite(tutorId);
+    }
   }
 }
 
