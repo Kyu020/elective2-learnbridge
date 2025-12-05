@@ -67,32 +67,34 @@ export const TutorsSection = ({ tutors }: TutorsSectionProps) => {
             ) : (
               recommendedTutors.map((tutor) => {
                 const hasProfilePicture = tutor.profilePicture?.url && !imageErrors[tutor.studentId];
+                const initials = tutor.name?.charAt(0)?.toUpperCase() || 'T';
                 
                 return (
                   <Card key={tutor.studentId} className="transition-all hover:shadow-lg border hover:border-green-200">
                     <CardContent className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4">
                       <div className="relative flex-shrink-0">
-                        {/* Profile Picture */}
-                        <div className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 rounded-full overflow-hidden border-2 border-white shadow-md">
+                        {/* Profile Picture Container - Perfect Circle */}
+                        <div className="relative h-12 w-12 sm:h-14 sm:w-14 rounded-full overflow-hidden border-2 border-white shadow-lg">
                           {hasProfilePicture ? (
                             <Image
                               src={tutor.profilePicture.url}
                               alt={tutor.name || "Tutor"}
                               fill
-                              className="object-cover"
+                              className="object-cover rounded-full" // Added rounded-full for extra safety
                               sizes="(max-width: 56px) 56px, (max-width: 64px) 64px, 72px"
                               onError={() => handleImageError(tutor.studentId)}
+                              style={{ borderRadius: '50%' }} // Force circular shape
                             />
                           ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-sm sm:text-base">
-                              {tutor.name?.charAt(0)?.toUpperCase() || 'T'}
+                            <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-base sm:text-lg rounded-full">
+                              {initials}
                             </div>
                           )}
                         </div>
                         
-                        {/* Favorite Count Badge */}
+                        {/* Favorite Count Badge - Circular */}
                         {tutor.favoriteCount > 0 && (
-                          <div className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center text-xs border-2 border-white shadow-sm">
+                          <div className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-xs border-2 border-white shadow-sm">
                             {tutor.favoriteCount}
                           </div>
                         )}
@@ -117,11 +119,11 @@ export const TutorsSection = ({ tutors }: TutorsSectionProps) => {
                             ₱{tutor.hourlyRate?.toLocaleString() || 0}/hr
                           </span>
                           
-                          {/* Teaching Level Badge */}
+                          {/* Teaching Level Badge - Circular */}
                           {tutor.teachingLevel && (
                             <Badge 
                               variant="outline" 
-                              className="text-xs px-1.5 py-0.5 hidden sm:inline-flex"
+                              className="text-xs px-1.5 py-0.5 hidden sm:inline-flex rounded-full" // Added rounded-full
                             >
                               {tutor.teachingLevel}
                             </Badge>
