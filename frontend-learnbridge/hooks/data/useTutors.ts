@@ -21,15 +21,15 @@ interface UseTutorsDataReturn {
   toggleFavorite: (tutorId: string) => Promise<void>;
 }
 
-export const useTutorsData = (): UseTutorsDataReturn => {
-  const [tutors, setTutors] = useState<Tutor[]>([]);
+export const useTutorsData = (initialTutors: Tutor[] = []): UseTutorsDataReturn => {
+  const [tutors, setTutors] = useState<Tutor[]>(initialTutors);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [userTutorStatus, setUserTutorStatus] = useState<UserTutorStatus>({
     isTutor: false,
     hasTutorProfile: false,
     userTutorProfile: null,
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(initialTutors.length === 0);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -99,8 +99,17 @@ export const useTutorsData = (): UseTutorsDataReturn => {
   };
 
   useEffect(() => {
+    // Only fetch if we don't have initial tutors
+    if (initialTutors.length === 0) {
     loadData();
-  }, []);
+    } else {
+      // Still fetch favorites and user status even if we have initial tutors
+      setLoading(false);
+      Promise.all([fetchFavorites(), fetchUserTutorStatus()]).catch(err => {
+        console.error("Failed to fetch favorites or user status:", err);
+      });
+    }
+  }, []); // Empty deps - only run once on mount
 
   const toggleTutorMode = async (isTutor: boolean): Promise<void> => {
     try {
@@ -187,7 +196,7 @@ export const useTutorsData = (): UseTutorsDataReturn => {
 
   const scheduleSession = async (scheduleData: ScheduleFormData & { tutorId: string }): Promise<void> => {
     try {
-      if (!scheduleData.sessionDate || !scheduleData.time || !scheduleData.duration || !scheduleData.price || !scheduleData.subject) {
+      if (!scheduleData.sessionDate || !scheduleData.time || !scheduleData.duration || !scheduleData.price || !scheduleData.course) {
         throw new Error("Please fill in all required fields.");
       }
 

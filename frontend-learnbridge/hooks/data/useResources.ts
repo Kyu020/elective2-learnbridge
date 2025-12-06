@@ -16,10 +16,10 @@ interface UseResourcesDataReturn {
   updateResourceFavoriteCount: (resourceId: string, change: number) => void;
 }
 
-export const useResourcesData = (): UseResourcesDataReturn => {
-  const [resources, setResources] = useState<Resource[]>([]);
+export const useResourcesData = (initialResources: Resource[] = []): UseResourcesDataReturn => {
+  const [resources, setResources] = useState<Resource[]>(initialResources);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(initialResources.length === 0);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -64,8 +64,17 @@ export const useResourcesData = (): UseResourcesDataReturn => {
   };
 
   useEffect(() => {
+    // Only fetch if we don't have initial resources
+    if (initialResources.length === 0) {
     loadData();
-  }, []);
+    } else {
+      // Still fetch favorites even if we have initial resources
+      setLoading(false);
+      fetchFavorites().catch(err => {
+        console.error("Failed to fetch favorites:", err);
+      });
+    }
+  }, []); // Empty deps - only run once on mount
 
   const toggleFavorite = async (resourceId: string) => {
     try {

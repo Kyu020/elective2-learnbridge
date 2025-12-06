@@ -1,4 +1,6 @@
 // components/molecules/FavoriteTutorCard.tsx
+import { useState } from "react";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,18 +15,34 @@ interface FavoriteTutorCardProps {
   isRemoving: boolean;
 }
 
-export const FavoriteTutorCard = ({ favorite, onRemove, onViewProfile, onBookNow, isRemoving }: FavoriteTutorCardProps) => (
-  <Card className="group relative transition-shadow hover:shadow-lg flex flex-col w-full">
-    <FavoriteActions 
-      onRemove={() => onRemove(favorite._id, favorite.tutorId)}
-      isRemoving={isRemoving}
-    />
-    
-    <CardContent className="p-4 sm:p-6 flex flex-col flex-1">
-      <div className="mb-4 flex flex-col items-center flex-1">
-        <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 mb-3 flex items-center justify-center text-white text-xl sm:text-2xl font-bold">
-          {favorite.tutor?.name?.charAt(0)?.toUpperCase() || 'T'}
-        </div>
+export const FavoriteTutorCard = ({ favorite, onRemove, onViewProfile, onBookNow, isRemoving }: FavoriteTutorCardProps) => {
+  const [imageError, setImageError] = useState(false);
+
+  return (
+    <Card className="group relative transition-shadow hover:shadow-lg flex flex-col w-full">
+      <FavoriteActions 
+        onRemove={() => onRemove(favorite._id, favorite.tutorId)}
+        isRemoving={isRemoving}
+      />
+      
+      <CardContent className="p-4 sm:p-6 flex flex-col flex-1">
+        <div className="mb-4 flex flex-col items-center flex-1">
+          <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-full overflow-hidden mb-3 border-2 border-primary/20 shadow-md">
+            {favorite.tutor?.profilePicture?.url && !imageError ? (
+              <Image
+                src={favorite.tutor.profilePicture.url}
+                alt={favorite.tutor?.name || "Tutor"}
+                fill
+                className="object-cover rounded-full"
+                sizes="(max-width: 80px) 80px, 96px"
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xl sm:text-2xl font-bold">
+                {favorite.tutor?.name?.charAt(0)?.toUpperCase() || 'T'}
+              </div>
+            )}
+          </div>
         <h3 className="font-semibold text-foreground text-center mb-2 text-sm sm:text-base">
           {favorite.tutor?.name || "Unknown Tutor"}
         </h3>
@@ -33,7 +51,7 @@ export const FavoriteTutorCard = ({ favorite, onRemove, onViewProfile, onBookNow
         </p>
         
         <div className="mb-3 flex flex-wrap gap-1 justify-center">
-          {favorite.tutor?.subjects?.slice(0, 3).map((subject, idx) => (
+          {(favorite.tutor?.course || []).slice(0, 3).map((subject, idx) => (
             <Badge key={idx} variant="secondary" className="text-xs">
               {subject}
             </Badge>
@@ -67,5 +85,6 @@ export const FavoriteTutorCard = ({ favorite, onRemove, onViewProfile, onBookNow
       </div>
     </CardContent>
   </Card>
-);
+  );
+};
 

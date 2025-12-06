@@ -12,7 +12,7 @@ export const useBookings = () => {
   const [loading, setLoading] = useState(true);
   const [sentError, setSentError] = useState<string | null>(null);
   const [receivedError, setReceivedError] = useState<string | null>(null);
-  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState<string | false>(false);
 
   const fetchBookings = async () => {
     setLoading(true);
@@ -31,18 +31,30 @@ export const useBookings = () => {
   };
 
   const updateBookingStatus = async (id: string, status: Booking["status"], tutorComment?: string) => {
-    setUpdatingStatus(true);
+    setUpdatingStatus(id);
     try {
       const updatedBooking = await bookingsService.updateBookingStatus(id, status, tutorComment);
       
-      // Update the bookings in state
+      // Update the bookings in state, preserving user info structure
       setBookingsData(prev => ({
         ...prev,
         sentBookings: prev.sentBookings.map(booking =>
-          booking._id === id ? { ...booking, ...updatedBooking } : booking
+          booking._id === id ? { 
+            ...booking, 
+            ...updatedBooking,
+            // Preserve user info structure
+            tutorInfo: updatedBooking.tutorInfo || booking.tutorInfo,
+            studentInfo: updatedBooking.studentInfo || booking.studentInfo
+          } : booking
         ),
         receivedBookings: prev.receivedBookings.map(booking =>
-          booking._id === id ? { ...booking, ...updatedBooking } : booking
+          booking._id === id ? { 
+            ...booking, 
+            ...updatedBooking,
+            // Preserve user info structure
+            tutorInfo: updatedBooking.tutorInfo || booking.tutorInfo,
+            studentInfo: updatedBooking.studentInfo || booking.studentInfo
+          } : booking
         )
       }));
     } catch (error: any) {

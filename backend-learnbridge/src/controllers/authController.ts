@@ -40,14 +40,22 @@ export const register = async (req: Request, res: Response) => {
 
 export const fetchUser = async (req: Request, res: Response) => {
     try {
-        const user = (req as any).user;
-        if (!user) {
+        const decodedUser = (req as any).user;
+        if (!decodedUser) {
             return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        // Fetch full user data from database including profile picture
+        const fullUser = await User.findOne({ studentId: decodedUser.studentId })
+            .select("-password"); // Exclude password
+
+        if (!fullUser) {
+            return res.status(404).json({ message: "User not found" });
         }
 
         res.status(200).json({
             message: "User fetched successfully",
-            user: user
+            user: fullUser
         });
     } catch (err) {
         console.error("Fetch User error:", err);

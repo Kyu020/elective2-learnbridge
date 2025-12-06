@@ -4,6 +4,7 @@
 import { Bell, LogOut, User, Settings, Menu } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -133,11 +134,15 @@ export function Header({ onMenuToggle }: HeaderProps) {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full">
               {user?.profilePicture?.url ? (
-                <img 
-                  src={user.profilePicture.url} 
-                  alt={user.username}
-                  className="h-8 w-8 rounded-full object-cover"
-                />
+                <div className="relative h-8 w-8 rounded-full overflow-hidden">
+                  <Image 
+                    src={user.profilePicture.url} 
+                    alt={user.username || "User"}
+                    fill
+                    className="object-cover rounded-full"
+                    sizes="32px"
+                  />
+                </div>
               ) : (
                 <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-sm font-semibold">
                   {user?.username?.charAt(0).toUpperCase() || "U"}

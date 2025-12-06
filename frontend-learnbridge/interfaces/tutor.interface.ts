@@ -5,8 +5,7 @@ export interface Tutor extends BaseEntity {
   studentId: string
   name: string
   bio: string
-  subjects: string[]  // Using subjects instead of course for consistency
-  course?: string[]   // Keep for backward compatibility
+  course: string[]
   hourlyRate: number
   availability: string[]
   credentials?: string

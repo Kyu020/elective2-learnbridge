@@ -48,16 +48,35 @@ class BookingsService {
         `${this.baseUrl}/request/getstudentrequests`
       );
       
-      // Handle different response structures
+      // Handle different response structures and map data
+      let rawBookings: any[] = [];
       if (Array.isArray(sentRes.body)) {
-        sentBookings = sentRes.body;
+        rawBookings = sentRes.body;
       } else if (Array.isArray(sentRes.bookings)) {
-        sentBookings = sentRes.bookings;
+        rawBookings = sentRes.bookings;
       } else if (Array.isArray(sentRes.requests)) {
-        sentBookings = sentRes.requests;
+        rawBookings = sentRes.requests;
       } else if (Array.isArray(sentRes)) {
-        sentBookings = sentRes;
+        rawBookings = sentRes;
       }
+      
+      // Map bookings to ensure course/subject compatibility and user info
+      sentBookings = rawBookings.map((booking: any) => {
+        // Preserve tutorInfo as-is - backend already provides correct structure
+        // Just ensure name field exists for frontend compatibility
+        const tutorInfo = booking.tutorInfo ? {
+          ...booking.tutorInfo,
+          name: booking.tutorInfo.name || booking.tutorInfo.username || ""
+        } : null;
+
+        return {
+          ...booking,
+          course: booking.course || booking.subject || "",
+          subject: booking.subject || booking.course || "",
+          tutorInfo,
+          studentInfo: booking.studentInfo || null
+        };
+      });
     } catch (error: any) {
       if (error.message.includes('404') || error.message.includes('No bookings found')) {
         // No sent bookings found - this is fine
@@ -74,16 +93,35 @@ class BookingsService {
         `${this.baseUrl}/request/getrequests`
       );
       
-      // Handle different response structures
+      // Handle different response structures and map data
+      let rawBookings: any[] = [];
       if (Array.isArray(receivedRes.body)) {
-        receivedBookings = receivedRes.body;
+        rawBookings = receivedRes.body;
       } else if (Array.isArray(receivedRes.bookings)) {
-        receivedBookings = receivedRes.bookings;
+        rawBookings = receivedRes.bookings;
       } else if (Array.isArray(receivedRes.requests)) {
-        receivedBookings = receivedRes.requests;
+        rawBookings = receivedRes.requests;
       } else if (Array.isArray(receivedRes)) {
-        receivedBookings = receivedRes;
+        rawBookings = receivedRes;
       }
+      
+      // Map bookings to ensure course/subject compatibility and user info
+      receivedBookings = rawBookings.map((booking: any) => {
+        // Preserve studentInfo as-is - backend already provides correct structure
+        // Just ensure name field exists for frontend compatibility
+        const studentInfo = booking.studentInfo ? {
+          ...booking.studentInfo,
+          name: booking.studentInfo.name || booking.studentInfo.username || ""
+        } : null;
+
+        return {
+          ...booking,
+          course: booking.course || booking.subject || "",
+          subject: booking.subject || booking.course || "",
+          studentInfo,
+          tutorInfo: booking.tutorInfo || null
+        };
+      });
       
       isTutor = true;
     } catch (error: any) {
@@ -117,8 +155,33 @@ class BookingsService {
       }
     );
     
-    // Handle different response structures
-    return data.body || data.booking || data.request || data as Booking;
+    // Handle different response structures and map data
+    const rawBooking = data.body || data.booking || data.request || data as Booking;
+    
+    // Preserve user info structure
+    const studentInfo = (rawBooking as any).studentInfo ? {
+      ...(rawBooking as any).studentInfo,
+      username: (rawBooking as any).studentInfo.username || (rawBooking as any).studentInfo.name || "",
+      name: (rawBooking as any).studentInfo.name || (rawBooking as any).studentInfo.username || "",
+      program: (rawBooking as any).studentInfo.program || "",
+      profilePicture: (rawBooking as any).studentInfo.profilePicture || null
+    } : null;
+    
+    const tutorInfo = (rawBooking as any).tutorInfo ? {
+      ...(rawBooking as any).tutorInfo,
+      username: (rawBooking as any).tutorInfo.username || (rawBooking as any).tutorInfo.name || "",
+      name: (rawBooking as any).tutorInfo.name || (rawBooking as any).tutorInfo.username || "",
+      program: (rawBooking as any).tutorInfo.program || "",
+      profilePicture: (rawBooking as any).tutorInfo.profilePicture || null
+    } : null;
+    
+    return {
+      ...rawBooking,
+      course: (rawBooking as any).course || (rawBooking as any).subject || "",
+      subject: (rawBooking as any).subject || (rawBooking as any).course || "",
+      studentInfo,
+      tutorInfo
+    } as Booking;
   }
 }
 

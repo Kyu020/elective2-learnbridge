@@ -100,11 +100,15 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
           <div className="border-t border-border p-4">
             <div className="flex items-center gap-3">
               {user?.profilePicture?.url ? (
-                <img 
-                  src={user.profilePicture.url} 
-                  alt={user.username}
-                  className="h-10 w-10 rounded-full object-cover flex-shrink-0"
-                />
+                <div className="relative h-10 w-10 rounded-full overflow-hidden flex-shrink-0">
+                  <Image 
+                    src={user.profilePicture.url} 
+                    alt={user.username || "User"}
+                    fill
+                    className="object-cover rounded-full"
+                    sizes="40px"
+                  />
+                </div>
               ) : (
                 <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex-shrink-0 flex items-center justify-center text-white text-sm font-bold">
                   {name.charAt(0).toUpperCase()}

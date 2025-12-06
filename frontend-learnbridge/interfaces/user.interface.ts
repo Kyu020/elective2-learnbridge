@@ -15,8 +15,9 @@ export interface TutorInfo extends ProfileUser {
 }
 
 export interface ProfileUser {
-  _id: string
+  _id?: string
   username: string
+  name?: string // For frontend compatibility (mapped from username)
   email: string
   program: string
   specialization?: string
@@ -26,7 +27,7 @@ export interface ProfileUser {
     publicId?: string
     format?: string
     bytes?: number
-  }
+  } | null
   earnedBadges?: any[]
   budgetRange?: {
     min: number

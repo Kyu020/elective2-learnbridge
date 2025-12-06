@@ -41,28 +41,40 @@ async fetchTutors(): Promise<Tutor[]> {
   const data = await this.fetchWithAuth<{ tutors: any[] }>(`${this.baseUrl}/tutor/getalltutor`);
   
   // Format tutors to ensure they have required properties
-  return data.tutors?.map((tutor: any) => ({
-    studentId: tutor.studentId || tutor._id || "",
-    name: tutor.name || tutor.username || "Unknown Tutor",
-    bio: tutor.bio || "No bio available",
-    course: Array.isArray(tutor.course) ? tutor.course : [],
-    hourlyRate: tutor.hourlyRate || 0,
-    availability: Array.isArray(tutor.availability) ? tutor.availability : [],
-    credentials: tutor.credentials || "",
-    favoriteCount: tutor.favoriteCount || 0,
-    createdAt: tutor.createdAt,
-    updatedAt: tutor.updatedAt,
-    teachingLevel: tutor.teachingLevel,
-    teachingStyle: tutor.teachingStyle,
-    modeOfTeaching: tutor.modeOfTeaching,
-    profilePicture: tutor.profilePicture,
-    ratingAverage: tutor.ratingAverage,
-    ratingCount: tutor.ratingCount,
-    credibilityScore: tutor.credibilityScore,
-    sessionsCompleted: tutor.sessionsCompleted,
-    sessionsCancelled: tutor.sessionsCancelled,
-    availabilitySlots: tutor.availabilitySlots
-  })) || [];
+  return data.tutors?.map((tutor: any) => {
+    // Handle various data formats from backend - use course field
+    let courses: string[] = []
+    
+    if (Array.isArray(tutor.course)) {
+      courses = tutor.course.filter((s: any) => s && typeof s === 'string')
+    } else if (tutor.course && typeof tutor.course === 'string') {
+      // Handle case where course might be a comma-separated string
+      courses = tutor.course.split(',').map((s: string) => s.trim()).filter(Boolean)
+    }
+    
+    return {
+      studentId: tutor.studentId || tutor._id || "",
+      name: tutor.name || tutor.username || "Unknown Tutor",
+      bio: tutor.bio || "No bio available",
+      course: courses,
+      hourlyRate: tutor.hourlyRate || 0,
+      availability: Array.isArray(tutor.availability) ? tutor.availability : [],
+      credentials: tutor.credentials || "",
+      favoriteCount: tutor.favoriteCount || 0,
+      createdAt: tutor.createdAt,
+      updatedAt: tutor.updatedAt,
+      teachingLevel: tutor.teachingLevel,
+      teachingStyle: tutor.teachingStyle,
+      modeOfTeaching: tutor.modeOfTeaching,
+      profilePicture: tutor.profilePicture,
+      ratingAverage: tutor.ratingAverage,
+      ratingCount: tutor.ratingCount,
+      credibilityScore: tutor.credibilityScore,
+      sessionsCompleted: tutor.sessionsCompleted,
+      sessionsCancelled: tutor.sessionsCancelled,
+      availabilitySlots: tutor.availabilitySlots
+    };
+  }) || [];
 }
 
   async fetchFavorites(): Promise<string[]> {
@@ -84,10 +96,10 @@ async fetchTutors(): Promise<Tutor[]> {
   }
 
   async createTutorProfile(formData: TutorFormData): Promise<{ tutor: Tutor }> {
-    // FIX: course is now an array, not a string
+    const courses = Array.isArray(formData.course) ? formData.course : [];
     const formattedData = {
       bio: formData.bio,
-      course: Array.isArray(formData.course) ? formData.course : [],
+      course: courses,
       availability: formData.availability.split(",").map((a: string) => a.trim()).filter((a: string) => a),
       hourlyRate: parseInt(formData.hourlyRate) || 0,
       credentials: formData.credentials || "",
@@ -106,10 +118,10 @@ async fetchTutors(): Promise<Tutor[]> {
   }
 
   async updateTutorProfile(formData: TutorFormData): Promise<{ updatedProfile: Tutor }> {
-    // FIX: course is now an array, not a string
+    const courses = Array.isArray(formData.course) ? formData.course : [];
     const formattedData = {
       bio: formData.bio,
-      course: Array.isArray(formData.course) ? formData.course : [],
+      course: courses,
       availability: formData.availability.split(",").map((a: string) => a.trim()).filter((a: string) => a),
       hourlyRate: parseInt(formData.hourlyRate) || 0,
       credentials: formData.credentials || "",

@@ -6,9 +6,9 @@ export const createTutorProfile = async (req: Request, res: Response) => {
     try {
     const user = (req as any).user;
     const studentId = user.studentId;
-    const name = user.username;
+    const username = user.username;
 
-    const { bio, subjects, hourlyRate, availability, credentials } = req.body;
+    const { bio, course, hourlyRate, availability, credentials } = req.body;
 
     const existingProfile = await Tutor.findOne({ studentId });
     if (existingProfile) {
@@ -17,9 +17,9 @@ export const createTutorProfile = async (req: Request, res: Response) => {
 
     const tutor = new Tutor({
         studentId,
-        name,
+        username,
         bio,
-        subjects,
+        course: course || [],
         hourlyRate,
         availability,
         credentials,
@@ -43,7 +43,7 @@ export const updateTutorProfile = async (req: Request, res: Response) => {
         const user = (req as any).user;
         const studentId = user.studentId;
 
-        const { bio, subjects, hourlyRate, availability, credentials } = req.body;
+        const { bio, course, hourlyRate, availability, credentials } = req.body;
 
         // Check if tutor profile exists
         const tutor = await Tutor.findOne({ studentId });
@@ -53,7 +53,7 @@ export const updateTutorProfile = async (req: Request, res: Response) => {
 
         // Update only fields that exist in the request body
         if (bio !== undefined) tutor.bio = bio;
-        if (subjects !== undefined) tutor.subjects = subjects;
+        if (course !== undefined) tutor.course = course;
         if (hourlyRate !== undefined) tutor.hourlyRate = hourlyRate;
         if (availability !== undefined) tutor.availability = availability;
         if (credentials !== undefined) tutor.credentials = credentials;
@@ -114,17 +114,38 @@ export const getAllTutorProfile = async (req: Request, res: Response) => {
         }
 
         // Fetch tutors whose studentId is in activeTutorIds but not the current user
+        // Explicitly select subjects field to ensure it's included
         const tutors = await Tutor.find({
             studentId: { $in: activeTutorIds, $ne: currentStudentId }
-        }).sort({ createdAt: -1 });
+        }).select("+subjects").sort({ createdAt: -1 });
 
         if (!tutors.length) {
             return res.status(404).json({ message: "No active tutors found at the moment" });
         }
 
+        // Enrich tutors with user profile pictures
+        const tutorsWithProfilePictures = await Promise.all(
+            tutors.map(async (tutor) => {
+                const userData = await User.findOne({ studentId: tutor.studentId })
+                    .select("profilePicture username");
+                
+                // Convert tutor to plain object and add profile picture
+                const tutorObj = tutor.toObject();
+                if (userData?.profilePicture) {
+                    tutorObj.profilePicture = userData.profilePicture;
+                }
+                // Ensure username is set from user data if not present
+                if (userData?.username && !tutorObj.username) {
+                    tutorObj.username = userData.username;
+                }
+                
+                return tutorObj;
+            })
+        );
+
         return res.status(200).json({
             message: "Active tutors fetched successfully",
-            tutors,
+            tutors: tutorsWithProfilePictures,
         });
 
     } catch (err: any) {
@@ -144,9 +165,23 @@ export const getTutorProfile = async (req: Request, res: Response) => {
             return res.status(404).json({ message: "Tutor not found" });
         }
 
+        // Fetch user data to get profile picture
+        const userData = await User.findOne({ studentId })
+            .select("profilePicture username");
+
+        // Convert tutor to plain object and add profile picture
+        const tutorObj = tutor.toObject();
+        if (userData?.profilePicture) {
+            tutorObj.profilePicture = userData.profilePicture;
+        }
+        // Ensure username is set from user data if not present
+        if (userData?.username && !tutorObj.username) {
+            tutorObj.username = userData.username;
+        }
+
         return res.status(200).json({
             message: "Tutor profile fetched successfully",
-            data: tutor,
+            data: tutorObj,
         });
     } catch (error: any) {
         console.error(error);
