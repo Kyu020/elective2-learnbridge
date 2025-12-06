@@ -22,7 +22,7 @@ export interface ProfileUser {
   program: string
   specialization?: string
   isTutor?: boolean
-  profilePicture: {
+  profilePicture?: {
     url: string
     publicId?: string
     format?: string
