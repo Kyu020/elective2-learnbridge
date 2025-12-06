@@ -38,7 +38,18 @@ class TutorProfileService {
   }
 
   async fetchTutorProfile(studentId: string): Promise<{ data: Tutor }> {
-    return this.fetchWithAuth<{ data: Tutor }>(`${this.baseUrl}/tutor/gettutor/${studentId}`);
+    const response = await this.fetchWithAuth<{ data: any }>(`${this.baseUrl}/tutor/gettutor/${studentId}`);
+    
+    // Map backend data to frontend format
+    const tutor = response.data;
+    if (tutor) {
+      // Ensure course field is properly set
+      if (!Array.isArray(tutor.course)) {
+        tutor.course = [];
+      }
+    }
+    
+    return { data: tutor };
   }
 
   async fetchTutorReviews(tutorId: string): Promise<Review[]> {

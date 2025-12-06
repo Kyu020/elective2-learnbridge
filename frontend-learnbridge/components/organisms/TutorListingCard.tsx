@@ -32,7 +32,7 @@ export const TutorListingCard = ({
     setImageError(true)
   }
 
-  const courses = tutor.course || []
+          const courses = Array.isArray(tutor.course) ? tutor.course : []
   const rating = tutor.ratingAverage || 0
   const ratingCount = tutor.ratingCount || 0
   

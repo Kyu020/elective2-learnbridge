@@ -77,7 +77,7 @@ export const TutorSidebar = ({
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Courses</span>
-              <span className="font-semibold">{(tutor.course || tutor.subjects || []).length}</span>
+              <span className="font-semibold">{(tutor.course || []).length}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Availability</span>

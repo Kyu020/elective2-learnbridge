@@ -15,7 +15,7 @@ export interface FavoriteTutor {
   _id: string
   name: string
   bio: string
-  subjects: string[]
+  course: string[]
   hourlyRate: number
   studentId: string
   credentials?: string

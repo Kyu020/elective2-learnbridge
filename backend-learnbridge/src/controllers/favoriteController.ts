@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import FavoriteModel from "../models/Favorite";
 import Tutor from "../models/Tutor";
 import Upload from "../models/Upload";
+import User from "../models/User";
 
 export const addFavorite = async (req: Request, res: Response) => {
   try {
@@ -108,7 +109,25 @@ export const getFavorites = async (req: Request, res: Response) => {
 
         if (fav.tutorId) {
           tutor = await Tutor.findOne({ studentId: fav.tutorId })
-            .select("studentId name bio subjects hourlyRate favoriteCount");
+            .select("studentId name bio course hourlyRate favoriteCount");
+          
+          // Fetch user profile picture for tutor
+          if (tutor) {
+            const userData = await User.findOne({ studentId: fav.tutorId })
+              .select("profilePicture username");
+            
+            if (userData) {
+              const tutorObj = tutor.toObject();
+              if (userData.profilePicture) {
+                tutorObj.profilePicture = userData.profilePicture;
+              }
+              // Ensure username is set from user data if not present
+              if (userData.username && !tutorObj.username) {
+                tutorObj.username = userData.username;
+              }
+              tutor = tutorObj;
+            }
+          }
         }
 
         if (fav.resourceId) {

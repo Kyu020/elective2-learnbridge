@@ -1,4 +1,6 @@
 // components/bookings/BookingCard.tsx
+import { useState } from "react";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,16 +22,30 @@ export const BookingCard = ({
   onUpdateStatus,
   updatingStatus = false 
 }: BookingCardProps) => {
+  const [imageError, setImageError] = useState(false);
   const isSent = type === 'sent';
   const userInfo = isSent ? booking.tutorInfo : booking.studentInfo;
-  const userName = userInfo?.username || "Unknown";
-  const userInitial = userName.charAt(0).toUpperCase();
+  
+  // Debug logging in development
+  if (process.env.NODE_ENV === 'development' && !userInfo) {
+    console.log('BookingCard: No userInfo found', { booking, type, isSent });
+  }
+  
+  // Handle different data structures from backend
+  const userName = userInfo?.username || userInfo?.name || "Unknown";
+  const userInitial = userName && userName.length > 0 ? userName.charAt(0).toUpperCase() : "?";
   const userProgram = userInfo?.program || "No program";
+  const profilePictureUrl = userInfo?.profilePicture?.url || userInfo?.profilePicture?.publicId || null;
+  const hasProfilePicture = profilePictureUrl && !imageError;
   
   // Gradient colors based on type
   const gradientClass = isSent 
     ? "from-green-500 to-teal-500" 
     : "from-blue-500 to-purple-500";
+  
+  const handleImageError = () => {
+    setImageError(true);
+  };
 
   const handleStatusUpdate = (status: Booking["status"]) => {
     if (onUpdateStatus) {
@@ -43,8 +59,20 @@ export const BookingCard = ({
         <div className="flex flex-col sm:flex-row gap-4">
           {/* User Avatar */}
           <div className="flex items-center gap-4 sm:block sm:w-16">
-            <div className={`h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0 overflow-hidden rounded-full bg-gradient-to-br ${gradientClass} flex items-center justify-center text-white text-sm sm:text-lg font-bold`}>
-              {userInitial}
+            <div className={`relative h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0 overflow-hidden rounded-full border-2 border-white shadow-lg ${!hasProfilePicture ? `bg-gradient-to-br ${gradientClass} flex items-center justify-center text-white text-sm sm:text-lg font-bold` : ''}`}>
+              {hasProfilePicture && profilePictureUrl ? (
+                <Image
+                  src={profilePictureUrl}
+                  alt={userName}
+                  fill
+                  className="object-cover rounded-full"
+                  sizes="(max-width: 48px) 48px, 64px"
+                  onError={handleImageError}
+                  style={{ borderRadius: '50%' }}
+                />
+              ) : (
+                <span>{userInitial}</span>
+              )}
             </div>
             {/* Mobile status badge */}
             <Badge className={`sm:hidden ${getStatusColor(booking.status)}`}>

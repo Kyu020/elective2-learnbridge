@@ -8,11 +8,11 @@ import { Booking } from '@/interfaces/booking.interface';
 interface BookingsTabsProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  activePanel: "sent" | "received";
-  currentBookings: Booking[];
+  activePanel?: "sent" | "received";
+  bookings: Booking[];
   loading: boolean;
-  error: string | null;
-  onRefresh: () => void;
+  error?: string | null;
+  onRefresh?: () => void;
   onUpdateStatus?: (id: string, status: Booking["status"], tutorComment?: string) => void;
   updatingStatus?: boolean;
   renderBookingCard: (booking: Booking) => React.ReactNode;
@@ -21,8 +21,8 @@ interface BookingsTabsProps {
 export const BookingsTabs = ({
   activeTab,
   onTabChange,
-  activePanel,
-  currentBookings,
+  activePanel = "sent",
+  bookings,
   loading,
   error,
   onRefresh,
@@ -30,6 +30,9 @@ export const BookingsTabs = ({
   updatingStatus = false,
   renderBookingCard
 }: BookingsTabsProps) => {
+  // Ensure bookings is always an array
+  const currentBookings = Array.isArray(bookings) ? bookings : [];
+  
   const filteredBookings = (status: Booking["status"]) =>
     currentBookings.filter((b) => b.status === status);
 

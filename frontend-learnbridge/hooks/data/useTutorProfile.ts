@@ -139,7 +139,7 @@ export const useTutorProfile = (): UseTutorProfileReturn => {
       fetchReviews();
       fetchFavorites();
     }
-  }, [tutor]);
+  }, [tutor?._id]); // Only depend on tutor ID, not the whole object
 
   const scheduleSession = async (scheduleData: ScheduleFormData & { tutorId: string }): Promise<void> => {
     try {

@@ -106,7 +106,9 @@ export const TutorsSection = ({ tutors }: TutorsSectionProps) => {
                         </h3>
                         
                         <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1 mt-1">
-                          {tutor.course?.slice(0, 2).join(", ") || "No courses"}
+                          {Array.isArray(tutor.course) && tutor.course.length > 0
+                            ? tutor.course.slice(0, 2).join(", ")
+                            : "No courses"}
                         </p>
                         
                         <div className="mt-2 flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-muted-foreground">

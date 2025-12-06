@@ -13,9 +13,56 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "LearnBridge - Your Learning Platform",
-  description: "Connect with expert tutors and access quality learning resources",
-  generator: "Satoshii",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
+  title: "LearnBridge",
+  description: "Connect with expert tutors and access quality learning resources. LearnBridge bridges learners with tutors for efficient and effective learning experiences.",
+  keywords: ["tutoring", "learning", "education", "online tutoring", "academic resources", "student tutors"],
+  authors: [{ name: "LearnBridge Team" }],
+  creator: "LearnBridge",
+  publisher: "LearnBridge",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "/",
+    siteName: "LearnBridge",
+    title: "LearnBridge - Your Learning Platform",
+    description: "Connect with expert tutors and access quality learning resources",
+    images: [
+      {
+        url: "/logo.jpg",
+        width: 1200,
+        height: 630,
+        alt: "LearnBridge Logo",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LearnBridge - Your Learning Platform",
+    description: "Connect with expert tutors and access quality learning resources",
+    images: ["/logo.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    // Add your verification codes here when available
+    // google: "your-google-verification-code",
+    // yandex: "your-yandex-verification-code",
+  },
 }
 
 export default function RootLayout({

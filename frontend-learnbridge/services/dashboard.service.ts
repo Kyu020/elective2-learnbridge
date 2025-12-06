@@ -44,8 +44,36 @@ class DashboardService {
     }
 
     async fetchTutors(): Promise<Tutor[]> {
-        const data = await this.fetchWithAuth<{ tutors: Tutor[]}>(`${this.baseUrl}/tutor/getalltutor`);
-        return data.tutors || [];
+        const data = await this.fetchWithAuth<{ tutors: any[]}>(`${this.baseUrl}/tutor/getalltutor`);
+        
+        // Format tutors to ensure they have required properties, similar to tutors.service.ts
+        return data.tutors?.map((tutor: any) => {
+            // Use course field from backend
+            const courses = Array.isArray(tutor.course) ? tutor.course : [];
+            
+            return {
+                studentId: tutor.studentId || tutor._id || "",
+                name: tutor.name || tutor.username || "Unknown Tutor",
+                bio: tutor.bio || "No bio available",
+                course: courses,
+                hourlyRate: tutor.hourlyRate || 0,
+                availability: Array.isArray(tutor.availability) ? tutor.availability : [],
+                credentials: tutor.credentials || "",
+                favoriteCount: tutor.favoriteCount || 0,
+                createdAt: tutor.createdAt,
+                updatedAt: tutor.updatedAt,
+                teachingLevel: tutor.teachingLevel,
+                teachingStyle: tutor.teachingStyle,
+                modeOfTeaching: tutor.modeOfTeaching,
+                profilePicture: tutor.profilePicture,
+                ratingAverage: tutor.ratingAverage,
+                ratingCount: tutor.ratingCount,
+                credibilityScore: tutor.credibilityScore,
+                sessionsCompleted: tutor.sessionsCompleted,
+                sessionsCancelled: tutor.sessionsCancelled,
+                availabilitySlots: tutor.availabilitySlots
+            };
+        }) || [];
     }  
 
     async fetchCurrentUser(): Promise<User | null> {

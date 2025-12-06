@@ -68,6 +68,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = (token: string, userData: UserProfile) => {
     localStorage.setItem('token', token)
+    // Set cookie for middleware
+    document.cookie = `token=${token}; path=/; max-age=86400; SameSite=Lax`
     setUser(userData)
     setIsLoading(false)
     window.dispatchEvent(new Event('authChange'))
@@ -165,6 +167,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     localStorage.removeItem('token')
+    // Remove cookie
+    document.cookie = 'token=; path=/; max-age=0; SameSite=Lax'
     setUser(null)
     window.dispatchEvent(new Event('authChange'))
   }

@@ -47,10 +47,20 @@ export const sendRequest = async (req: Request, res: Response) => {
 
     await newRequest.save();
 
-    const studentInfo = await User.findOne(
+    const studentData = await User.findOne(
       { studentId },
-      "username email program specialization"
-    );
+      "username email program specialization profilePicture"
+    ).lean();
+    
+    // Convert to plain object and ensure all fields are present
+    const studentInfo = studentData ? {
+      username: studentData.username || "",
+      name: studentData.username || "", // Map username to name for frontend compatibility
+      email: studentData.email || "",
+      program: studentData.program || "",
+      specialization: studentData.specialization || "",
+      profilePicture: studentData.profilePicture || null
+    } : null;
 
     return res.status(201).json({
       message: "Request sent successfully",
@@ -81,10 +91,21 @@ export const getTutorRequests = async (req: Request, res: Response) => {
 
     const enrichedRequests = await Promise.all(
       requests.map(async (reqItem: any) => {
-        const studentInfo = await User.findOne(
+        const studentData = await User.findOne(
           { studentId: reqItem.studentId },
-          "username email program specialization"
-        );
+          "username email program specialization profilePicture"
+        ).lean();
+        
+        // Convert to plain object and ensure all fields are present
+        const studentInfo = studentData ? {
+          username: studentData.username || "",
+          name: studentData.username || "", // Map username to name for frontend compatibility
+          email: studentData.email || "",
+          program: studentData.program || "",
+          specialization: studentData.specialization || "",
+          profilePicture: studentData.profilePicture || null
+        } : null;
+      
         return { ...reqItem.toObject(), studentInfo };
       })
     );
@@ -115,10 +136,21 @@ export const getStudentRequests = async (req: Request, res: Response) => {
 
     const enrichedRequests = await Promise.all(
       requests.map(async (reqItem: any) => {
-        const tutorInfo = await User.findOne(
+        const tutorData = await User.findOne(
           { studentId: reqItem.tutorId },
-          "username email program specialization"
-        );
+          "username email program specialization profilePicture"
+        ).lean();
+        
+        // Convert to plain object and ensure all fields are present
+        const tutorInfo = tutorData ? {
+          username: tutorData.username || "",
+          name: tutorData.username || "", // Map username to name for frontend compatibility
+          email: tutorData.email || "",
+          program: tutorData.program || "",
+          specialization: tutorData.specialization || "",
+          profilePicture: tutorData.profilePicture || null
+        } : null;
+
         return { ...reqItem.toObject(), tutorInfo };
       })
     );
@@ -159,9 +191,45 @@ export const updateRequestStatus = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Request not found or unauthorized" });
     }
 
+    // Enrich with student info
+    const studentData = await User.findOne(
+      { studentId: updated.studentId },
+      "username email program specialization profilePicture"
+    ).lean();
+    
+    const tutorData = await User.findOne(
+      { studentId: updated.tutorId },
+      "username email program specialization profilePicture"
+    ).lean();
+    
+    // Convert to plain objects and ensure all fields are present
+    const studentInfo = studentData ? {
+      username: studentData.username || "",
+      name: studentData.username || "", // Map username to name for frontend compatibility
+      email: studentData.email || "",
+      program: studentData.program || "",
+      specialization: studentData.specialization || "",
+      profilePicture: studentData.profilePicture || null
+    } : null;
+    
+    const tutorInfo = tutorData ? {
+      username: tutorData.username || "",
+      name: tutorData.username || "", // Map username to name for frontend compatibility
+      email: tutorData.email || "",
+      program: tutorData.program || "",
+      specialization: tutorData.specialization || "",
+      profilePicture: tutorData.profilePicture || null
+    } : null;
+
+    const enrichedRequest = {
+      ...updated.toObject(),
+      studentInfo,
+      tutorInfo
+    };
+
     return res.status(200).json({
       message: "Request status updated successfully",
-      body: updated
+      body: enrichedRequest
     });
 
   } catch (err: any) {

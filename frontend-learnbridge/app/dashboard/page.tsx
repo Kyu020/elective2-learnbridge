@@ -1,46 +1,28 @@
-"use client"
+import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
+import { getServerUser, isAuthenticated } from '@/lib/server/auth'
+import { fetchDashboardData } from '@/lib/server/data'
+import { DashboardClient } from './DashboardClient'
 
-import { LayoutWrapper } from "@/components/templates/LayoutWrapper"
-import { QuickActions } from "@/components/organisms/QuickActions"
-import { StatsSection } from "@/components/molecules/StatsSection"
-import { ResourcesSection } from "@/components/organisms/ResourcesSection"
-import { TutorsSection } from "@/components/organisms/TutorsSection"
-import { WelcomeBanner } from "@/components/molecules/WelcomeBanner"
-import { PageLoader } from "@/components/ui/loading-spinner"
-import { useDashboardData } from "@/hooks/data/useDashboard"
-import { useToastNotifications } from "@/hooks/ui/useToastNotifications"
+export const metadata: Metadata = {
+  title: "LearnBridge",
+  description: "Your LearnBridge dashboard - view your resources, tutors, and quick actions",
+  robots: {
+    index: false,
+    follow: false,
+  },
+}
 
-export default function DashboardPage() {
-  const { user, resources, tutors, loading } = useDashboardData();
+export default async function DashboardPage() {
+  const authenticated = await isAuthenticated()
   
-  // Handle toast notifications for empty states
-  useToastNotifications({ loading, resources, tutors });
-
-  if (loading) {
-    return (
-      <LayoutWrapper>
-        <PageLoader />
-      </LayoutWrapper>
-    );
+  if (!authenticated) {
+    redirect('/login?redirect=/dashboard')
   }
 
-  return (
-    <LayoutWrapper>
-      <WelcomeBanner username={user?.username} />
-      
-      <div className="mb-6 lg:mb-8">
-        <h2 className="mb-3 sm:mb-4 text-lg sm:text-xl font-semibold text-foreground">
-          Quick Actions
-        </h2>
-        <QuickActions />
-      </div>
+  const initialData = await fetchDashboardData()
+  const serverUser = await getServerUser()
 
-      <StatsSection resources={resources} tutors={tutors} />
-
-      <div className="grid gap-6 lg:gap-8 lg:grid-cols-2">
-        <ResourcesSection resources={resources} />
-        <TutorsSection tutors={tutors} />
-      </div>
-    </LayoutWrapper>
-  )
+  return <DashboardClient initialData={initialData} serverUser={serverUser} />
 }
+

@@ -3,9 +3,9 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface ITutor extends Document {
   studentId: string;
-  name: string;
+  username: string;
   bio: string;
-  subjects: string[];
+  course: string[];
   hourlyRate: number;
   availability: string[];
   favoriteCount: number;
@@ -14,7 +14,6 @@ export interface ITutor extends Document {
   ratingCount: number;
   createdAt?: Date;
   
-  course?: string[];
   profilePicture?: any;
   teachingLevel?: string;
   teachingStyle?: string;
@@ -30,9 +29,9 @@ export interface ITutor extends Document {
 const TutorSchema: Schema = new Schema(
   {
     studentId: { type: String, required: true, unique: true },
-    name: { type: String, required: true },
+    username: { type: String, required: true },
     bio: { type: String, required: true },
-    subjects: { type: [String], required: true },
+    course: { type: [String], required: true },
     hourlyRate: { type: Number, required: true },
     availability: { type: [String], required: true },
     favoriteCount: { type: Number, default: 0 },
