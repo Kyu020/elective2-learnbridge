@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Header } from "@/components/header"
-import { Sidebar } from "@/components/sidebar"
+import { Header } from "@/components/organisms/Header"
+import { Sidebar } from "@/components/organisms/Sidebar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -28,7 +28,7 @@ import {
   Target,
   Zap,
 } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/hooks/ui/use-toast"
 
 export default function ProfilePage() {
   const { toast } = useToast()

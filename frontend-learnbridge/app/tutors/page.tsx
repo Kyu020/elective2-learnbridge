@@ -1,19 +1,21 @@
+// app/tutors/page.tsx
 "use client"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { LayoutWrapper } from "@/components/layout-wrapper"
+import { LayoutWrapper } from "@/components/templates/LayoutWrapper"
 import { PageLoader } from "@/components/ui/loading-spinner"
-import { TutorHeader } from "@/components/tutors/TutorHeader"
-import { Filters } from "@/components/tutors/Filters"
-import { TutorCard } from "@/components/tutors/TutorCard"
-import { TutorProfileDialog } from "@/components/tutors/TutorProfileDialog"
-import { ScheduleDialog } from "@/components/tutors/ScheduleDialog"
-import { EmptyState } from "@/components/tutors/EmptyState"
-import { useTutorsData } from "@/hooks/useTutorsData"
-import { useTutorSearch } from "@/hooks/useTutorSearch"
-import { TutorFormData, ScheduleFormData } from "@/interfaces/tutors.interfaces"
-import { useToast } from "@/hooks/use-toast"
+import { TutorHeader } from "@/components/molecules/TutorHeader"
+import { Filters } from "@/components/organisms/Filters"
+import { TutorListingCard } from "@/components/organisms/TutorListingCard"
+import { TutorProfileDialog } from "@/components/organisms/TutorProfileDialog"
+import { ScheduleSessionDialog } from "@/components/organisms/ScheduleSessionDialog"
+import { EmptyState } from "@/components/molecules/EmptyState"
+import { useTutorsData } from "@/hooks/data/useTutors"
+import { useTutorSearch } from "@/hooks/ui/useSearch"
+import { TutorFormData, Tutor } from "@/interfaces/tutor.interface"
+import { ScheduleFormData } from "@/interfaces/booking.interface"
+import { useToast } from "@/hooks/ui/use-toast"
 
 export default function TutorsPage() {
   const router = useRouter()
@@ -24,11 +26,11 @@ export default function TutorsPage() {
   const [openScheduleDialog, setOpenScheduleDialog] = useState(false)
   const [showMobileFilters, setShowMobileFilters] = useState(false)
   const [updatingFavorite, setUpdatingFavorite] = useState<string | null>(null)
-  const [selectedTutor, setSelectedTutor] = useState<any>(null)
+  const [selectedTutor, setSelectedTutor] = useState<Tutor | null>(null)
   
   const [createForm, setCreateForm] = useState<TutorFormData>({
     bio: "",
-    subjects: "",
+    course: [], // Now an array
     hourlyRate: "",
     availability: "",
     credentials: "",
@@ -36,7 +38,7 @@ export default function TutorsPage() {
 
   const [editForm, setEditForm] = useState<TutorFormData>({
     bio: "",
-    subjects: "",
+    course: [], // Now an array
     hourlyRate: "",
     availability: "",
     credentials: "",
@@ -47,7 +49,7 @@ export default function TutorsPage() {
     time: "",
     duration: "60",
     price: "",
-    subject: "",
+    course: "",
     comment: ""
   })
 
@@ -79,7 +81,7 @@ export default function TutorsPage() {
       setOpenCreateDialog(false)
       setCreateForm({
         bio: "",
-        subjects: "",
+        course: [],
         hourlyRate: "",
         availability: "",
         credentials: "",
@@ -100,16 +102,19 @@ export default function TutorsPage() {
 
   const handleOpenEditDialog = () => {
     if (userTutorStatus.userTutorProfile) {
+      const tutorProfile = userTutorStatus.userTutorProfile;
+      
       setEditForm({
-        bio: userTutorStatus.userTutorProfile.bio || "",
-        subjects: Array.isArray(userTutorStatus.userTutorProfile.subjects) 
-          ? userTutorStatus.userTutorProfile.subjects.join(", ") 
-          : "",
-        hourlyRate: userTutorStatus.userTutorProfile.hourlyRate?.toString() || "",
-        availability: Array.isArray(userTutorStatus.userTutorProfile.availability) 
-          ? userTutorStatus.userTutorProfile.availability.join(", ") 
-          : "",
-        credentials: userTutorStatus.userTutorProfile.credentials || "",
+        bio: tutorProfile.bio || "",
+        course: Array.isArray(tutorProfile.course) ? tutorProfile.course : [],
+        hourlyRate: tutorProfile.hourlyRate?.toString() || "",
+        availability: Array.isArray(tutorProfile.availability) 
+          ? tutorProfile.availability.join(", ") 
+          : (tutorProfile.availability || ""),
+        credentials: tutorProfile.credentials || "",
+        teachingLevel: tutorProfile.teachingLevel || "",
+        teachingStyle: tutorProfile.teachingStyle || "",
+        modeOfTeaching: tutorProfile.modeOfTeaching || "either",
       })
       setOpenEditDialog(true)
       
@@ -134,17 +139,21 @@ export default function TutorsPage() {
     setUpdatingFavorite(null)
   }
 
-  const handleOpenScheduleDialog = (tutor: any) => {
+  const handleOpenScheduleDialog = (tutor: Tutor) => {
     setSelectedTutor(tutor)
     const defaultDuration = "60"
     const calculatedPrice = calculatePriceFromDuration(defaultDuration, tutor)
+    
+    // Use course field (not subjects)
+    const availableCourses = tutor.course || [];
+    const defaultCourse = availableCourses.length > 0 ? availableCourses[0] : "";
     
     setScheduleForm({
       sessionDate: "",
       time: "",
       duration: defaultDuration,
       price: calculatedPrice,
-      subject: tutor.subjects[0] || "",
+      course: defaultCourse,
       comment: ""
     })
     setOpenScheduleDialog(true)
@@ -170,7 +179,7 @@ export default function TutorsPage() {
         time: "", 
         duration: "60", 
         price: "", 
-        subject: "", 
+        course: "", 
         comment: "" 
       })
     } catch (error) {
@@ -178,7 +187,7 @@ export default function TutorsPage() {
     }
   }
 
-  const handleViewProfile = (tutor: any) => {
+  const handleViewProfile = (tutor: Tutor) => {
     toast({
       title: "Viewing Profile",
       description: `Opening ${tutor.name}'s profile`,
@@ -187,7 +196,7 @@ export default function TutorsPage() {
   }
 
   // Utility functions
-  const calculatePriceFromDuration = (duration: string, tutor?: any): string => {
+  const calculatePriceFromDuration = (duration: string, tutor?: Tutor): string => {
     const currentTutor = tutor || selectedTutor
     if (!currentTutor || !duration) return "0"
     const durationInHours = parseInt(duration) / 60
@@ -272,7 +281,7 @@ export default function TutorsPage() {
           <div className="space-y-6">
             {filteredTutors.length > 0 ? (
               filteredTutors.map((tutor) => (
-                <TutorCard
+                <TutorListingCard
                   key={tutor.studentId}
                   tutor={tutor}
                   isFavorite={favorites.has(tutor.studentId)}
@@ -284,6 +293,7 @@ export default function TutorsPage() {
               ))
             ) : (
               <EmptyState 
+                type="tutors"
                 searchQuery={searchQuery}
                 onClearFilters={clearFilters}
               />
@@ -301,6 +311,7 @@ export default function TutorsPage() {
         onFormChange={setCreateForm}
         onSubmit={handleCreateTutor}
         loading={false}
+        userProgram="BSIT" // You should get this from user data
       />
 
       <TutorProfileDialog
@@ -312,9 +323,10 @@ export default function TutorsPage() {
         onSubmit={handleUpdateTutor}
         loading={false}
         isEdit={true}
+        userProgram="BSIT" // You should get this from user data
       />
 
-      <ScheduleDialog
+      <ScheduleSessionDialog
         open={openScheduleDialog}
         onOpenChange={setOpenScheduleDialog}
         selectedTutor={selectedTutor}

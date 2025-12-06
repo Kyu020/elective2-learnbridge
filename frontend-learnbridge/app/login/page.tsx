@@ -11,10 +11,12 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Eye, EyeOff } from "lucide-react"
 import api from "@/lib/axios"
+import { useAuth } from "@/contexts/authContext"
 
 export default function LoginPage() {
   const router = useRouter();
-  const [studentId, setStudentId] = useState("") // Uncomment if student ID is needed
+  const { login } = useAuth();
+  const [studentId, setStudentId] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
@@ -32,16 +34,71 @@ export default function LoginPage() {
 
     try {
       const response = await api.post("/auth/login", { studentId, password });
-      const { token } = response.data;
+      const { token, user: userPayload } = response.data;
 
       if (!token) throw new Error("Token not received");
 
-      localStorage.setItem("studentId", studentId);
-      localStorage.setItem("token", token);
-      router.push("/dashboard");
+      // Fetch full user profile from /auth/me endpoint
+      try {
+        const profileResponse = await api.get("/auth/me", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        const fullUserData = profileResponse.data.user || userPayload;
+        
+        // Transform user data to match UserProfile interface
+        const userProfile = {
+          _id: fullUserData.userId || fullUserData._id || "",
+          username: fullUserData.username || fullUserData.name || "",
+          studentId: fullUserData.studentId || "",
+          email: fullUserData.email || `${studentId}@gordoncollege.edu.ph`,
+          program: fullUserData.program || "",
+          specialization: fullUserData.specialization || "",
+          isTutor: fullUserData.isTutor || false,
+          learningInterests: fullUserData.learningInterests || [],
+          learningLevel: fullUserData.learningLevel || "",
+          preferredMode: fullUserData.preferredMode || "",
+          availability: fullUserData.availability || [],
+          createdAt: fullUserData.createdAt || new Date().toISOString(),
+          profilePicture: fullUserData.profilePicture,
+          earnedBadges: fullUserData.earnedBadges || [],
+          budgetRange: fullUserData.budgetRange
+        };
+
+        // Use auth context login function
+        login(token, userProfile);
+        
+        if (rememberMe) {
+          localStorage.setItem("studentId", studentId);
+        }
+        
+        router.push("/dashboard");
+      } catch (profileError: any) {
+        // If profile fetch fails, use the payload from login
+        const userProfile = {
+          _id: userPayload?.userId || "",
+          username: userPayload?.username || "",
+          studentId: userPayload?.studentId || studentId,
+          email: userPayload?.email || `${studentId}@gordoncollege.edu.ph`,
+          program: userPayload?.program || "",
+          specialization: userPayload?.specialization || "",
+          isTutor: userPayload?.isTutor || false,
+          learningInterests: [],
+          learningLevel: "",
+          preferredMode: "",
+          availability: [],
+          createdAt: new Date().toISOString(),
+          profilePicture: undefined,
+          earnedBadges: [],
+          budgetRange: undefined
+        };
+        
+        login(token, userProfile);
+        router.push("/dashboard");
+      }
     } catch (err: any) {
       console.error("❌ Login error:", err);
-      setError ((err.response.message)|| (err.response.data.message) || "Network error");
+      setError(err.response?.data?.message || err.response?.message || err.message || "Network error");
     } finally {
       setLoading(false)
     }

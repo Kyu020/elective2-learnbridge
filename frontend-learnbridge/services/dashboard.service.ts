@@ -1,4 +1,7 @@
-import { User, Resource, Tutor, DashboardData} from "@/interfaces/dashboard.interfaces";
+import { User } from "@/interfaces/user.interface";
+import { Resource } from "@/interfaces/resource.interface";
+import { Tutor } from "@/interfaces/tutor.interface";
+import { DashboardData } from "@/interfaces/dashboard.interface";
 
 class DashboardService {
     private baseUrl = 'http://localhost:5000/api';

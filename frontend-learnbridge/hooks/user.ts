@@ -1,11 +1,33 @@
+// hooks/user.ts
 import api from "@/lib/axios"
 
 export interface UserData {
+  _id: string
   username: string
+  studentId: string
+  email: string
   program: string
   specialization?: string
-  isTutor?: boolean
-  email?: string
+  isTutor: boolean
+  learningInterests?: string[]
+  learningLevel?: string
+  preferredMode?: string
+  availability?: any[]
+  earnedBadges?: Array<{
+    badgeId: any
+    earnedAt: string
+    _id: string
+  }>
+  profilePicture?: {
+    url: string
+    format: string
+    bytes: number
+  }
+  budgetRange?: {
+    min: number
+    max: number
+  }
+  createdAt?: string
 }
 
 export async function fetchCurrentUser(): Promise<UserData | null> {

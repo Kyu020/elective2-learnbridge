@@ -1,15 +1,16 @@
 "use client"
 
 import { useState } from "react"
-import { LayoutWrapper } from "@/components/layout-wrapper"
+import { LayoutWrapper } from "@/components/templates/LayoutWrapper"
 import { Button } from "@/components/ui/button"
 import { PageLoader } from "@/components/ui/loading-spinner"
-import { UploadDialog } from "@/components/resources/UploadDialog"
-import { SearchBar } from "@/components/resources/SearchBar"
-import { ResourceCard } from "@/components/resources/ResourceCard"
-import { EmptyState } from "@/components/resources/EmptyState"
-import { useResourcesData } from "@/hooks/useResourcesData"
-import { useResourceSearch } from "@/hooks/useResourceSearch"
+import { UploadDialog } from "@/components/organisms/UploadDialog"
+import { SearchBar } from "@/components/molecules/SearchBar"
+import { ResourceListingCard } from "@/components/molecules/ResourceListingCard"
+import { EmptyState } from "@/components/molecules/EmptyState"
+import { useResourcesData } from "@/hooks/data/useResources"
+import { useResourceSearch } from "@/hooks/ui/useSearch"
+import { Resource } from "@/interfaces/resource.interface"
 
 export default function ResourcesPage() {
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
@@ -26,11 +27,11 @@ export default function ResourcesPage() {
   const {
     searchQuery,
     setSearchQuery,
-    filteredResources,
+    filteredData, // Changed from filteredResources
     clearSearch
   } = useResourceSearch(resources);
 
-  const handleResourceUploaded = (resource: any) => {
+  const handleResourceUploaded = (resource: Resource) => { // Added type
     addResource(resource);
   };
 
@@ -73,14 +74,14 @@ export default function ResourcesPage() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onClearSearch={clearSearch}
-        resultCount={filteredResources.length}
+        resultCount={filteredData.length} // Changed
         totalCount={resources.length}
       />
 
       <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {filteredResources.length > 0 ? (
-          filteredResources.map((resource) => (
-            <ResourceCard
+        {filteredData.length > 0 ? (
+          filteredData.map((resource: Resource) => (
+            <ResourceListingCard
               key={resource._id}
               resource={resource}
               isFavorite={favorites.has(resource._id)}
@@ -90,6 +91,7 @@ export default function ResourcesPage() {
           ))
         ) : (
           <EmptyState
+            type="resources"
             searchQuery={searchQuery}
             onUploadClick={handleOpenUploadDialog}
             onClearSearch={clearSearch}
@@ -98,7 +100,7 @@ export default function ResourcesPage() {
       </div>
 
       {/* Load More Section for larger datasets */}
-      {filteredResources.length > 0 && filteredResources.length < resources.length && (
+      {filteredData.length > 0 && filteredData.length < resources.length && ( // Changed
         <div className="mt-8 text-center">
           <Button variant="outline" className="mx-auto">
             Load More Resources

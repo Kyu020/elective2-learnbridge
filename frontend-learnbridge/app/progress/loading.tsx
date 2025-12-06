@@ -1,4 +1,4 @@
-import { LayoutWrapper } from "@/components/layout-wrapper"
+import { LayoutWrapper } from "@/components/templates/LayoutWrapper"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default function ProgressLoading() {

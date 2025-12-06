@@ -6,7 +6,7 @@ import fs from "fs";
 export const uploadFile = async ( req: Request, res: Response ) => {
   try {
     const file = req.file as Express.Multer.File;
-    const { title, program } = req.body;
+    const { title, course } = req.body;
     const drive = getDriveInstance();
 
     const user = (req as any).user;
@@ -43,7 +43,7 @@ export const uploadFile = async ( req: Request, res: Response ) => {
 
     const newUpload = new Upload({
         title,
-        program,
+        course,
         uploader,
         googleDriveFileId: driveFile.id,
         googleDriveLink: publicLink,

@@ -1,15 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { LayoutWrapper } from "@/components/layout-wrapper"
+import { LayoutWrapper } from "@/components/templates/LayoutWrapper"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BookOpen, Users } from "lucide-react"
-import { useFavoritesData } from "@/hooks/useFavoritesData"
-import { useFavoritesNavigation } from "@/hooks/useFavoritesNavigation"
-import { LoadingState } from "@/components/favorites/LoadingState"
-import { EmptyState } from "@/components/favorites/EmptyState"
-import { ResourceCard } from "@/components/favorites/ResourceCard"
-import { TutorCard } from "@/components/favorites/TutorCard"
+import { useFavorites } from "@/hooks/data/useFavorites"
+import { useFavoritesNavigation } from "@/hooks/navigation/useFavoritesNavigation"
+import { LoadingState } from "@/components/molecules/LoadingState"
+import { EmptyState } from "@/components/molecules/EmptyState"
+import { FavoriteResourceCard } from "@/components/molecules/FavoriteResourceCard"
+import { FavoriteTutorCard } from "@/components/molecules/FavoriteTutorCard"
 
 export default function FavoritesPage() {
   const {
@@ -17,7 +17,7 @@ export default function FavoritesPage() {
     favoriteTutors,
     loading,
     removeFavorite,
-  } = useFavoritesData()
+  } = useFavorites()
 
   const {
     handleViewProfile,
@@ -65,13 +65,13 @@ export default function FavoritesPage() {
         <TabsContent value="resources" className="space-y-4">
           {favoriteResources.length === 0 ? (
             <EmptyState 
-              type="resources"
+              type="favorites-resources"
               onBrowse={() => handleBrowseRedirect('resources')}
             />
           ) : (
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 px-4 sm:px-0">
               {favoriteResources.map((favorite) => (
-                <ResourceCard
+                <FavoriteResourceCard
                   key={favorite._id}
                   favorite={favorite}
                   onRemove={handleRemoveFavorite}
@@ -86,13 +86,13 @@ export default function FavoritesPage() {
         <TabsContent value="tutors" className="space-y-4">
           {favoriteTutors.length === 0 ? (
             <EmptyState 
-              type="tutors"
+              type="favorites-tutors"
               onBrowse={() => handleBrowseRedirect('tutors')}
             />
           ) : (
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 px-4 sm:px-0">
               {favoriteTutors.map((favorite) => (
-                <TutorCard
+                <FavoriteTutorCard
                   key={favorite._id}
                   favorite={favorite}
                   onRemove={handleRemoveFavorite}
