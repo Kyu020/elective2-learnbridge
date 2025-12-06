@@ -2,14 +2,14 @@
 "use client"
 
 import { useState } from "react"
-import { LayoutWrapper } from "@/components/layout-wrapper"
-import { BookingsHeader } from "@/components/bookings/BookingsHeader"
-import { PanelSelector } from "@/components/bookings/PanelSelector"
-import { TutorRegistrationMessage } from "@/components/bookings/TutorRegistrationMessage"
-import { BookingsTabs } from "@/components/bookings/BookingsTab"
-import { BookingCard } from "@/components/bookings/BookingCard"
-import { useBookings } from "@/hooks/useBookings"
-import { useToast } from "@/hooks/use-toast"
+import { LayoutWrapper } from "@/components/templates/LayoutWrapper"
+import { BookingsHeader } from "@/components/molecules/BookingsHeader"
+import { PanelSelector } from "@/components/molecules/PanelSelector"
+import { TutorRegistrationMessage } from "@/components/molecules/TutorRegistrationMessage"
+import { BookingsTabs } from "@/components/organisms/BookingsTab"
+import { BookingCard } from "@/components/organisms/BookingCard"
+import { useBookings } from "@/hooks/data/useBookings"
+import { useToast } from "@/hooks/ui/use-toast"
 import { RefreshCw } from "lucide-react"
 
 export default function BookingsPage() {

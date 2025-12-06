@@ -1,5 +1,6 @@
 // services/tutors.service.ts
-import { Tutor, TutorFormData, ScheduleFormData } from '@/interfaces/tutors.interfaces';
+import { Tutor, TutorFormData } from '@/interfaces/tutor.interface';
+import { ScheduleFormData } from '@/interfaces/booking.interface';
 
 class TutorsService {
   private baseUrl = 'http://localhost:5000/api';
@@ -132,7 +133,8 @@ async fetchTutors(): Promise<Tutor[]> {
       sessionDate: new Date(`${scheduleData.sessionDate}T${scheduleData.time}`).toISOString(),
       duration: parseInt(scheduleData.duration),
       price: parseFloat(scheduleData.price),
-      subject: scheduleData.subject,
+      course: scheduleData.course || scheduleData.subject, // Use course, fallback to subject for backward compatibility
+      subject: scheduleData.course || scheduleData.subject, // Keep subject for backend compatibility
       comment: scheduleData.comment || "I would like to schedule a tutoring session"
     };
 

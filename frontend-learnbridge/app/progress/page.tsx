@@ -1,4 +1,4 @@
-import { LayoutWrapper } from "@/components/layout-wrapper"
+import { LayoutWrapper } from "@/components/templates/LayoutWrapper"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { TrendingUp, Clock, Award, BookOpen, Target, Calendar, CheckCircle2 } from "lucide-react"

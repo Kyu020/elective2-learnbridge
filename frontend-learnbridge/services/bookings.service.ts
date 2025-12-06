@@ -1,5 +1,5 @@
 // services/bookings.service.ts
-import { Booking, BookingsData } from '@/interfaces/bookings.interfaces';
+import { Booking, BookingsData } from '@/interfaces/booking.interface';
 
 class BookingsService {
   private baseUrl = 'http://localhost:5000/api';

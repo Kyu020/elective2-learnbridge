@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { LayoutWrapper } from "@/components/layout-wrapper"
+import { LayoutWrapper } from "@/components/templates/LayoutWrapper"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { toast } from "@/hooks/use-toast"
+import { toast } from "@/hooks/ui/use-toast"
 import api from "@/lib/axios"
 
 interface Tutor {
@@ -47,7 +47,8 @@ interface ScheduleForm {
   time: string
   duration: string
   price: string
-  subject: string
+  course: string
+  subject?: string // Keep for backward compatibility
   comment: string
 }
 
@@ -72,7 +73,7 @@ export default function TutorProfilePage() {
     time: "",
     duration: "60",
     price: "",
-    subject: "",
+    course: "",
     comment: ""
   })
   const [reviewForm, setReviewForm] = useState<ReviewForm>({
@@ -417,12 +418,13 @@ export default function TutorProfilePage() {
     const defaultDuration = "60"
     const calculatedPrice = ((tutor.hourlyRate * parseInt(defaultDuration)) / 60).toFixed(2)
     
+    const availableCourses = tutor.course || tutor.subjects || [];
     setScheduleForm({
       sessionDate: "",
       time: "",
       duration: defaultDuration,
       price: calculatedPrice,
-      subject: tutor.subjects[0] || "",
+      course: availableCourses[0] || "",
       comment: ""
     })
     setScheduleDialog(true)
@@ -437,10 +439,10 @@ export default function TutorProfilePage() {
     if (!tutor) return
 
     // Validate all required fields
-    if (!scheduleForm.sessionDate || !scheduleForm.time || !scheduleForm.duration || !scheduleForm.price || !scheduleForm.subject) {
+    if (!scheduleForm.sessionDate || !scheduleForm.time || !scheduleForm.duration || !scheduleForm.price || !scheduleForm.course) {
       toast({ 
         title: "Missing Information", 
-        description: "Please fill in all required fields (Date, Time, Duration, Subject).", 
+        description: "Please fill in all required fields (Date, Time, Duration, Course).", 
         variant: "destructive" 
       })
       return
@@ -507,7 +509,8 @@ export default function TutorProfilePage() {
           sessionDate: sessionDate,
           duration: duration,
           price: price,
-          subject: scheduleForm.subject,
+          course: scheduleForm.course,
+          subject: scheduleForm.course, // Keep for backend compatibility
           comment: scheduleForm.comment || "I would like to schedule a tutoring session"
         },
         {
@@ -526,7 +529,7 @@ export default function TutorProfilePage() {
           time: "", 
           duration: "60", 
           price: "", 
-          subject: "", 
+          course: "", 
           comment: "" 
         })
       }
@@ -876,18 +879,18 @@ export default function TutorProfilePage() {
 
             <div className="space-y-4 mt-2">
               <div>
-                <Label htmlFor="subject">Subject *</Label>
+                <Label htmlFor="course">Course *</Label>
                 <Select 
-                  value={scheduleForm.subject} 
-                  onValueChange={(value) => setScheduleForm({...scheduleForm, subject: value})}
+                  value={scheduleForm.course} 
+                  onValueChange={(value) => setScheduleForm({...scheduleForm, course: value})}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a subject" />
+                    <SelectValue placeholder="Select a course" />
                   </SelectTrigger>
                   <SelectContent>
-                    {tutor.subjects.map((subject) => (
-                      <SelectItem key={subject} value={subject}>
-                        {subject}
+                    {(tutor.course || tutor.subjects || []).map((course) => (
+                      <SelectItem key={course} value={course}>
+                        {course}
                       </SelectItem>
                     ))}
                   </SelectContent>

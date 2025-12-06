@@ -1,17 +1,17 @@
 "use client"
 
-import { LayoutWrapper } from "@/components/layout-wrapper"
-import { QuickActions } from "@/components/dashboard/QuickActions"
-import { StatsSection } from "@/components/dashboard/StatsSection"
-import { ResourcesSection } from "@/components/dashboard/ResourcesSection"
-import { TutorsSection } from "@/components/dashboard/TutorsSection"
-import { WelcomeBanner } from "@/components/dashboard/WelcomeBanner"
+import { LayoutWrapper } from "@/components/templates/LayoutWrapper"
+import { QuickActions } from "@/components/organisms/QuickActions"
+import { StatsSection } from "@/components/molecules/StatsSection"
+import { ResourcesSection } from "@/components/organisms/ResourcesSection"
+import { TutorsSection } from "@/components/organisms/TutorsSection"
+import { WelcomeBanner } from "@/components/molecules/WelcomeBanner"
 import { PageLoader } from "@/components/ui/loading-spinner"
-import { useDashboardDataReturn } from "@/hooks/useDashboardData"
-import { useToastNotifications } from "@/hooks/useToastNotifications"
+import { useDashboardData } from "@/hooks/data/useDashboard"
+import { useToastNotifications } from "@/hooks/ui/useToastNotifications"
 
 export default function DashboardPage() {
-  const { user, resources, tutors, loading } = useDashboardDataReturn();
+  const { user, resources, tutors, loading } = useDashboardData();
   
   // Handle toast notifications for empty states
   useToastNotifications({ loading, resources, tutors });

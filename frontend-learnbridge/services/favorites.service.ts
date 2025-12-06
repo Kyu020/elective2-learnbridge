@@ -1,4 +1,4 @@
-import { FavoriteItem, FavoritesResponse, RemoveFavoriteRequest } from '@/interfaces/favorites.interfaces';
+import { FavoriteItem, FavoritesResponse, RemoveFavoriteRequest } from '@/interfaces/favorite.interface';
 
 class FavoritesService {
   private baseUrl = 'http://localhost:5000/api';

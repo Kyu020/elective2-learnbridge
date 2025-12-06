@@ -3,18 +3,19 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { LayoutWrapper } from "@/components/layout-wrapper"
+import { LayoutWrapper } from "@/components/templates/LayoutWrapper"
 import { PageLoader } from "@/components/ui/loading-spinner"
-import { TutorHeader } from "@/components/tutors/TutorHeader"
-import { Filters } from "@/components/tutors/Filters"
-import { TutorCard } from "@/components/tutors/TutorCard"
-import { TutorProfileDialog } from "@/components/tutors/TutorProfileDialog"
-import { ScheduleDialog } from "@/components/tutors/ScheduleDialog"
-import { EmptyState } from "@/components/tutors/EmptyState"
-import { useTutorsData } from "@/hooks/useTutorsData"
-import { useTutorSearch } from "@/hooks/useTutorSearch"
-import { TutorFormData, ScheduleFormData, Tutor } from "@/interfaces/tutors.interfaces"
-import { useToast } from "@/hooks/use-toast"
+import { TutorHeader } from "@/components/molecules/TutorHeader"
+import { Filters } from "@/components/organisms/Filters"
+import { TutorListingCard } from "@/components/organisms/TutorListingCard"
+import { TutorProfileDialog } from "@/components/organisms/TutorProfileDialog"
+import { ScheduleSessionDialog } from "@/components/organisms/ScheduleSessionDialog"
+import { EmptyState } from "@/components/molecules/EmptyState"
+import { useTutorsData } from "@/hooks/data/useTutors"
+import { useTutorSearch } from "@/hooks/ui/useSearch"
+import { TutorFormData, Tutor } from "@/interfaces/tutor.interface"
+import { ScheduleFormData } from "@/interfaces/booking.interface"
+import { useToast } from "@/hooks/ui/use-toast"
 
 export default function TutorsPage() {
   const router = useRouter()
@@ -48,7 +49,7 @@ export default function TutorsPage() {
     time: "",
     duration: "60",
     price: "",
-    subject: "",
+    course: "",
     comment: ""
   })
 
@@ -152,7 +153,7 @@ export default function TutorsPage() {
       time: "",
       duration: defaultDuration,
       price: calculatedPrice,
-      subject: defaultCourse,
+      course: defaultCourse,
       comment: ""
     })
     setOpenScheduleDialog(true)
@@ -178,7 +179,7 @@ export default function TutorsPage() {
         time: "", 
         duration: "60", 
         price: "", 
-        subject: "", 
+        course: "", 
         comment: "" 
       })
     } catch (error) {
@@ -280,7 +281,7 @@ export default function TutorsPage() {
           <div className="space-y-6">
             {filteredTutors.length > 0 ? (
               filteredTutors.map((tutor) => (
-                <TutorCard
+                <TutorListingCard
                   key={tutor.studentId}
                   tutor={tutor}
                   isFavorite={favorites.has(tutor.studentId)}
@@ -292,6 +293,7 @@ export default function TutorsPage() {
               ))
             ) : (
               <EmptyState 
+                type="tutors"
                 searchQuery={searchQuery}
                 onClearFilters={clearFilters}
               />
@@ -324,7 +326,7 @@ export default function TutorsPage() {
         userProgram="BSIT" // You should get this from user data
       />
 
-      <ScheduleDialog
+      <ScheduleSessionDialog
         open={openScheduleDialog}
         onOpenChange={setOpenScheduleDialog}
         selectedTutor={selectedTutor}

@@ -1,4 +1,6 @@
-import { Tutor, Review, ScheduleFormData, ReviewFormData } from '@/interfaces/tutor-profile.interfaces';
+import { Tutor } from '@/interfaces/tutor.interface';
+import { Review, ReviewFormData } from '@/interfaces/review.interface';
+import { ScheduleFormData } from '@/interfaces/booking.interface';
 
 class TutorProfileService {
   private baseUrl = 'http://localhost:5000/api';
@@ -81,7 +83,8 @@ class TutorProfileService {
       sessionDate: new Date(`${scheduleData.sessionDate}T${scheduleData.time}`).toISOString(),
       duration: parseInt(scheduleData.duration),
       price: parseFloat(scheduleData.price),
-      subject: scheduleData.subject,
+      course: scheduleData.course || scheduleData.subject, // Use course, fallback to subject for backward compatibility
+      subject: scheduleData.course || scheduleData.subject, // Keep subject for backend compatibility
       comment: scheduleData.comment || "I would like to schedule a tutoring session"
     };
 

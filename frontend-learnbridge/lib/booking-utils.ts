@@ -1,5 +1,5 @@
 // lib/booking-utils.ts
-import { Booking } from '@/interfaces/bookings.interfaces';
+import { Booking } from '@/interfaces/booking.interface';
 
 export function formatSessionDate(dateString: string): string {
   const date = new Date(dateString);

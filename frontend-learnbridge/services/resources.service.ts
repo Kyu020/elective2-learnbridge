@@ -1,4 +1,4 @@
-import { Resource, UploadResourceData, FavoriteAction } from "@/interfaces/resources.interfaces";
+import { Resource, UploadResourceData} from "@/interfaces/resource.interface";
 
 class ResourcesService {
     private baseUrl = 'http://localhost:5000/api';
